@@ -6,8 +6,9 @@
     "outDir": "lib",
     "sourceMap": true,
     "target": "es6",
-    "declaration": true
+    "declaration": true,
+    "strictNullChecks": true
   },
-  "include": ["src"],
+  "include": ["src/**/*"],
   "exclude": []
 }
