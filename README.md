@@ -1,4 +1,4 @@
-[![master](https://github.com/{ORG_NAME}/{REPO_NAME}/workflows/build/badge.svg?branch=master&event=push)](https://github.com/{ORG_NAME}/{REPO_NAME}/actions?query=workflow%3Abuild+branch%3Amaster+event%3Apush)
+[![master](https://github.com/skonves/ility/workflows/build/badge.svg?branch=main&event=push)](https://github.com/skonves/ility/actions?query=workflow%3Abuild+branch%3Amain+event%3Apush)
 
 # ility
 
