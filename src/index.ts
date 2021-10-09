@@ -1,23 +1,23 @@
-import * as fs from 'fs/promises';
+import { File } from './file-factory';
 import { Parser } from './parser';
 import { SorbetFactory } from './sorbet-factory';
-import { OpenAPI } from './types';
 import { TypescriptFactory } from './typescript-factory';
 
-async function readSchema(filepath: string): Promise<OpenAPI.Schema> {
-  const buffer = await fs.readFile(filepath);
-  return JSON.parse(buffer.toString());
+const factories = [new TypescriptFactory(), new SorbetFactory()];
+
+export const allowedTargets = factories.map((f) => f.target);
+
+export function generate(
+  schema: string,
+  title: string,
+  target: string,
+): File[] {
+  const factory = factories.find((f) => f.target === target);
+  if (!factory) return [];
+
+  const obj = JSON.parse(schema);
+
+  const service = new Parser(obj, title).parse();
+
+  return factory.build(service);
 }
-
-readSchema('./specs/example.json').then((schema) => {
-  const parser = new Parser(schema, 'pet store');
-  const service = parser.parse();
-
-  const files = new TypescriptFactory().build(service);
-
-  for (const file of files) {
-    console.log('====================');
-    console.log(file.path);
-    console.log(file.contents);
-  }
-});
