@@ -1,6 +1,7 @@
 {
   "name": "ility",
   "version": "0.0.1",
+  "description": "Multilingual code generation from OpenAPI",
   "main": "lib/index.js",
   "bin": {
     "ility": "./lib/cli.js"
@@ -13,7 +14,8 @@
     "postbuild": "chmod +x ./lib/cli.js",
     "lint": "eslint src/**/*.ts && prettier -c .",
     "lint:fix": "eslint --fix src/**/*.ts && prettier -w .",
-    "pretest": "rm -rf coverage/*"
+    "pretest": "rm -rf coverage/*",
+    "prepack": "npm run build"
   },
   "keywords": [],
   "author": "",
