@@ -20,6 +20,7 @@
     "@types/node": "^16.10.3",
     "@types/pluralize": "0.0.29",
     "@types/semver": "^7.3.8",
+    "@types/yargs": "^17.0.3",
     "@typescript-eslint/eslint-plugin": "^4.33.0",
     "@typescript-eslint/parser": "^4.33.0",
     "eslint": "^7.32.0",
@@ -33,6 +34,7 @@
   "dependencies": {
     "case": "^1.6.3",
     "pluralize": "^8.0.0",
-    "semver": "^7.3.5"
+    "semver": "^7.3.5",
+    "yargs": "^17.2.1"
   }
 }
