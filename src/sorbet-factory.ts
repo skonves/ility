@@ -2,6 +2,7 @@ import { File, FileFactory } from './file-factory';
 import {
   Enum,
   Interface,
+  isRequired,
   Method,
   Parameter,
   ReturnType,
@@ -86,7 +87,7 @@ export class SorbetFactory implements FileFactory {
     for (const property of type.properties) {
       const typeName = this.buildTypeName(property, service);
       yield `    const ${snake(property.name)}, ${
-        property.isRequired ? typeName : `T.nilable(${typeName})`
+        isRequired(property) ? typeName : `T.nilable(${typeName})`
       }`;
     }
     yield '  end';
@@ -152,15 +153,15 @@ export class SorbetFactory implements FileFactory {
     service: Service,
   ): Iterable<string> {
     const sortedParams = [
-      ...parameters.filter((p) => p.isRequired),
-      ...parameters.filter((p) => !p.isRequired),
+      ...parameters.filter((p) => isRequired(p)),
+      ...parameters.filter((p) => !isRequired(p)),
     ];
 
     const params = sortedParams
       .map(
         (p) =>
           `${snake(p.name)}: ${
-            p.isRequired
+            isRequired(p)
               ? this.buildTypeName(p, service)
               : `T.nilable(${this.buildTypeName(p, service)})`
           }`,
@@ -177,15 +178,15 @@ export class SorbetFactory implements FileFactory {
     service: Service,
   ): Iterable<string> {
     const sortedParams = [
-      ...parameters.filter((p) => p.isRequired),
-      ...parameters.filter((p) => !p.isRequired),
+      ...parameters.filter((p) => isRequired(p)),
+      ...parameters.filter((p) => !isRequired(p)),
     ];
 
     const params = sortedParams
       .map(
         (p) =>
           `${snake(p.name)}: ${
-            p.isRequired
+            isRequired(p)
               ? this.buildTypeName(p, service)
               : `T.nilable(${this.buildTypeName(p, service)})`
           }`,
@@ -200,13 +201,13 @@ export class SorbetFactory implements FileFactory {
     if (!method.parameters.length) return '';
 
     const sortedParams = [
-      ...method.parameters.filter((p) => p.isRequired),
-      ...method.parameters.filter((p) => !p.isRequired),
+      ...method.parameters.filter((p) => isRequired(p)),
+      ...method.parameters.filter((p) => !isRequired(p)),
     ];
 
     const paramString = sortedParams
       .map((p) =>
-        p.isRequired ? `${snake(p.name)}:` : `${snake(p.name)}: nil`,
+        isRequired(p) ? `${snake(p.name)}:` : `${snake(p.name)}: nil`,
       )
       .join(', ');
 

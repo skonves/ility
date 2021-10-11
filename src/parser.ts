@@ -2,6 +2,7 @@ import { major } from 'semver';
 import { singular } from 'pluralize';
 import { OpenAPI } from './types';
 import { camel } from 'case';
+import { ValidationRule } from './validators/types';
 
 export class Parser {
   constructor(
@@ -83,8 +84,10 @@ export class Parser {
     param: OpenAPI.Parameter,
     methodName: string,
   ): Parameter {
+    const resolved = isBodyParameter(param) ? param.schema : param;
+
     const { typeName, isLocal, isArray } = this.parseType(
-      param.in === 'body' ? param.schema : param,
+      resolved,
       param.name,
       methodName,
     );
@@ -92,14 +95,17 @@ export class Parser {
       name: param.name,
       description: this.parseDescription(undefined, param.description),
       typeName,
-      isRequired: param.required || false,
       isLocal,
       isArray,
+      rules: param.required ? [{ id: 'required' }] : [],
     };
   }
 
   private parseType(
-    def: OpenAPI.Parameter | OpenAPI.JsonSchema | OpenAPI.Reference,
+    def:
+      | Exclude<OpenAPI.Parameter, OpenAPI.BodyParameter>
+      | OpenAPI.JsonSchema
+      | OpenAPI.Reference,
     localName: string,
     parentName: string,
   ): {
@@ -107,6 +113,7 @@ export class Parser {
     enumValues?: string[];
     isLocal: boolean;
     isArray: boolean;
+    rules: ValidationRule[];
   } {
     if (isReference(def)) {
       return {
@@ -115,6 +122,7 @@ export class Parser {
           : def.$ref,
         isLocal: true,
         isArray: false,
+        rules: [],
       };
     }
 
@@ -132,31 +140,39 @@ export class Parser {
             typeName: enumName,
             isLocal: true,
             isArray: false,
+            rules: [],
           };
         } else {
           return {
             typeName: resolved.type,
             isLocal: false,
             isArray: false,
+            rules: [],
           };
         }
       case 'number':
       case 'integer':
       case 'boolean':
       case 'null':
-        return { typeName: resolved.type, isLocal: false, isArray: false };
+        return {
+          typeName: resolved.type,
+          isLocal: false,
+          isArray: false,
+          rules: [],
+        };
       case 'array':
         const items = this.parseType(resolved.items, localName, parentName);
         return {
           typeName: items.typeName,
           isLocal: items.isLocal,
           isArray: true,
+          rules: [],
         };
       case 'object':
         const typeName = camel(`${parentName}_${localName}`);
         this.anonymousTypes.push({
           name: typeName,
-          properties: this.parseProperties(resolved),
+          properties: this.parseProperties(resolved, typeName),
           description: resolved.description,
         });
 
@@ -164,12 +180,14 @@ export class Parser {
           typeName,
           isLocal: true,
           isArray: false,
+          rules: [],
         };
       default:
         return {
           typeName: '>>>>>>>>>>>>>>>>> unknown <<<<<<<<<<<<<<<<<<<',
           isLocal: true,
           isArray: false,
+          rules: [],
         };
     }
   }
@@ -187,7 +205,7 @@ export class Parser {
 
     const response = this.resolve(success);
 
-    if (!response.schema?.type && !response.schema?.$ref) return;
+    if (!response.schema) return;
 
     return this.parseType(
       response.schema,
@@ -207,33 +225,46 @@ export class Parser {
       return {
         name: def.name,
         description: def.description,
-        properties: this.parseProperties(def),
+        properties:
+          def.type === 'object' ? this.parseProperties(def, def.name) : [],
       };
     });
   }
 
-  private parseProperties(def: OpenAPI.JsonSchema): Property[] {
+  private parseProperties(
+    def: OpenAPI.ObjectSchema,
+    parentName?: string,
+  ): Property[] {
     if (def.allOf) {
+      const { allOf, properties, ...rest } = def;
       return def.allOf
-        .map((subDef) => this.parseProperties(this.resolve(subDef)))
+        .map((subDef) =>
+          this.parseProperties({
+            ...rest,
+            properties: this.resolve(subDef),
+          }),
+        )
         .reduce((a, b) => a.concat(b), []);
     } else {
       const required = new Set<string>(def.required || []);
       const props: Property[] = [];
       for (const name in def.properties) {
         const prop = def.properties[name];
+
+        const resolvedProp = this.resolve(prop);
+
         const { typeName, isArray, isLocal } = this.parseType(
           prop,
           name,
-          def.name,
+          parentName || '',
         );
         props.push({
           name,
-          description: prop.description,
+          description: resolvedProp.description,
           typeName,
           isArray,
           isLocal,
-          isRequired: required.has(name),
+          rules: required.has(name) ? [{ id: 'required' }] : [],
         });
       }
       return props;
@@ -284,7 +315,7 @@ export type Property = {
   typeName: string;
   isArray: boolean;
   isLocal: boolean;
-  isRequired: boolean;
+  rules: ValidationRule[];
 };
 
 export type Interface = {
@@ -306,17 +337,26 @@ export type Parameter = {
   typeName: string;
   isArray: boolean;
   isLocal: boolean;
-  isRequired: boolean;
+  rules: ValidationRule[];
 };
 
 export type ReturnType = {
   typeName: string;
   isArray: boolean;
   isLocal: boolean;
+  rules: ValidationRule[];
 };
+
+export function isRequired(obj: { rules: ValidationRule[] }): boolean {
+  return obj.rules.some((r) => r.id === 'required');
+}
 
 function isReference<T>(
   param: T | OpenAPI.Reference,
 ): param is OpenAPI.Reference {
   return typeof (param as any).$ref !== 'undefined';
+}
+
+function isBodyParameter(obj: any): obj is OpenAPI.BodyParameter {
+  return typeof obj['in'] === 'string' && obj.in === 'body';
 }
