@@ -1,5 +1,12 @@
 import { File, FileFactory } from './file-factory';
-import { Interface, Method, Parameter, Service, Type } from './parser';
+import {
+  Interface,
+  isRequired,
+  Method,
+  Parameter,
+  Service,
+  Type,
+} from './parser';
 import { format } from 'prettier';
 
 import { pascal, camel } from 'case';
@@ -65,14 +72,14 @@ export class TypescriptFactory implements FileFactory {
     yield `  async ${camel(method.name)}(`;
 
     const sortedParams = [
-      ...method.parameters.filter((p) => p.isRequired),
-      ...method.parameters.filter((p) => !p.isRequired),
+      ...method.parameters.filter((p) => isRequired(p)),
+      ...method.parameters.filter((p) => !isRequired(p)),
     ];
 
     for (const param of sortedParams) {
       // yield* this.buildDescription(param.description, [], 4);
       yield `    ${camel(param.name)}${
-        param.isRequired ? '' : '?'
+        isRequired(param) ? '' : '?'
       }: ${this.buildTypeName(param)},`;
     }
 
@@ -91,7 +98,7 @@ export class TypescriptFactory implements FileFactory {
     for (const prop of type.properties) {
       yield* this.buildDescription(prop.description);
       yield `  ${camel(prop.name)}${
-        prop.isRequired ? '' : '?'
+        isRequired(prop) ? '' : '?'
       }: ${this.buildTypeName(prop)};`;
     }
     yield `}`;
@@ -119,8 +126,8 @@ export class TypescriptFactory implements FileFactory {
       }
 
       const sortedParams = [
-        ...params.filter((p) => p.isRequired),
-        ...params.filter((p) => !p.isRequired),
+        ...params.filter((p) => isRequired(p)),
+        ...params.filter((p) => !isRequired(p)),
       ];
 
       for (const param of sortedParams) {
