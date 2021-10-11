@@ -43,29 +43,25 @@ export namespace OpenAPI {
     parameters?: (Parameter | Reference)[];
   };
 
-  export type Parameter =
-    | {
-        name: string;
-        in: 'query' | 'header' | 'path' | 'formData';
-        description?: string;
-        required?: boolean;
-        type: PropertyType;
-        format?: string;
-        allowEmptyValue?: boolean;
-        items?: Items;
-        collectionFormat?: 'csv' | 'ssv' | 'tsv' | 'pipes' | 'multi';
-        default?: any;
-        maximum?: number;
-        exclusiveMaximum?: boolean;
-        // TODO: finish this
-      }
-    | {
-        name: string;
-        in: 'body';
-        description?: string;
-        required?: boolean;
-        schema: JsonSchema;
-      };
+  export type BodyParameter = {
+    name: string;
+    in: 'body';
+    description?: string;
+    required?: boolean;
+    schema: JsonSchema | Reference;
+  };
+
+  export type NonBodyParameter = {
+    name: string;
+    in: 'query' | 'header' | 'path' | 'formData';
+    description?: string;
+    required?: boolean;
+    allowEmptyValue?: boolean;
+    collectionFormat?: 'csv' | 'ssv' | 'tsv' | 'pipes' | 'multi';
+    default?: any;
+  } & Exclude<JsonSchema, ObjectSchema>;
+
+  export type Parameter = BodyParameter | NonBodyParameter;
 
   export type Headers = {
     [name: string]: Header;
@@ -73,33 +69,16 @@ export namespace OpenAPI {
 
   export type Header = {
     description?: string;
-    type: PropertyType;
-    format?: string;
-    items?: Items;
     collectionFormat?: 'csv' | 'ssv' | 'tsv' | 'pipes' | 'multi';
     default?: any;
-    maximum?: number;
-    exclusiveMaximum?: boolean;
-    // TODO: finish this
-  };
+  } & JsonSchema;
 
   export type Reference = {
     $ref: string;
   };
 
-  export type Items = {
-    type: PropertyType;
-    format?: string;
-    items?: Items;
-    collectionFormat?: 'csv' | 'ssv' | 'tsv' | 'pipes' | 'multi';
-    default?: any;
-    maximum?: number;
-    exclusiveMaximum?: boolean;
-    // TODO: finish this
-  };
-
   export type Definitions = {
-    [name: string]: any;
+    [name: string]: JsonSchema;
   };
 
   export type ParameterDefinitions = {
@@ -116,7 +95,7 @@ export namespace OpenAPI {
 
   export type Response = {
     description: string;
-    schema?: JsonSchema;
+    schema?: JsonSchema | Reference;
     headers?: Headers;
     examples?: Examples;
   };
@@ -194,16 +173,65 @@ export namespace OpenAPI {
     security?: SecurityRequirement[];
   };
 
-  export type JsonSchema = any;
+  export type JsonSchema =
+    | StringSchema
+    | NumberSchema
+    | BooleanSchema
+    | NullSchema
+    | ArraySchema
+    | ObjectSchema;
 
-  export type TypePrimitive =
-    | 'string'
-    | 'number'
-    | 'integer'
-    | 'boolean'
-    | 'array'
-    | 'file'
-    | 'object'; // TODO: verify that object is valid
+  export type StringSchema = {
+    type: 'string';
+    description?: string;
+    minLength?: number;
+    maxLength?: number;
+    pattern?: string;
+    format?: string;
+    enum?: string[];
+  };
+
+  export type NumberSchema = {
+    type: 'number' | 'integer';
+    description?: string;
+    multipleOf?: number;
+    minimum?: number;
+    exclusiveMinimum?: boolean;
+    maximum?: number;
+    exclusiveMaximum?: boolean;
+  };
+
+  export type BooleanSchema = {
+    type: 'boolean';
+    description?: string;
+  };
+
+  export type NullSchema = {
+    type: 'null';
+    description?: string;
+  };
+
+  export type ArraySchema = {
+    type: 'array';
+    description?: string;
+    items: JsonSchema | Reference;
+    minItems?: number;
+    maxItems?: number;
+    uniqueItems?: boolean;
+  };
+
+  export type ObjectSchema = {
+    type: 'object';
+    description?: string;
+    required?: string[];
+    properties?: Record<string, JsonSchema | Reference>;
+    allOf?: (Record<string, JsonSchema | Reference> | Reference)[];
+    minProperties?: number;
+    maxProperties?: number;
+    additionalProperties?: boolean;
+  };
+
+  export type TypePrimitive = JsonSchema['type'];
 
   export type PropertyType = TypePrimitive | TypePrimitive[];
 }
