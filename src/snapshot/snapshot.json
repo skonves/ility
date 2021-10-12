@@ -26,7 +26,21 @@
         },
         {
           "name": "createGizmo",
-          "parameters": [],
+          "parameters": [
+            {
+              "name": "size",
+              "description": "Anonymous enum",
+              "typeName": "createGizmoSize",
+              "isLocal": true,
+              "isArray": false,
+              "rules": [
+                {
+                  "id": "string-enum",
+                  "values": ["small", "medium", "big", "XL"]
+                }
+              ]
+            }
+          ],
           "description": [
             "Has a summary in addition to a description",
             "Has a description in addition to a summary"
@@ -181,6 +195,50 @@
           "rules": []
         }
       ],
+      "rules": [{ "id": "object-additional-properties", "forbidden": true }]
+    },
+    {
+      "name": "newWidget",
+      "properties": [
+        {
+          "name": "name",
+          "typeName": "string",
+          "isArray": false,
+          "isLocal": false,
+          "rules": [
+            { "id": "string-max-length", "length": 30 },
+            { "id": "string-pattern", "pattern": "[0-9a-fA-F]+" }
+          ]
+        },
+        {
+          "name": "fiz",
+          "typeName": "number",
+          "isArray": false,
+          "isLocal": false,
+          "rules": [{ "id": "number-multiple-of", "value": 3 }]
+        },
+        {
+          "name": "buzz",
+          "typeName": "number",
+          "isArray": false,
+          "isLocal": false,
+          "rules": [{ "id": "number-multiple-of", "value": 5 }]
+        },
+        {
+          "name": "fizbuzz",
+          "typeName": "number",
+          "isArray": false,
+          "isLocal": false,
+          "rules": [{ "id": "number-multiple-of", "value": 15 }]
+        },
+        {
+          "name": "foo",
+          "typeName": "newWidgetFoo",
+          "isArray": false,
+          "isLocal": true,
+          "rules": []
+        }
+      ],
       "rules": []
     },
     {
@@ -228,7 +286,29 @@
         }
       ],
       "rules": []
+    },
+    {
+      "name": "newWidgetFoo",
+      "properties": [
+        {
+          "name": "fiz",
+          "typeName": "number",
+          "isArray": false,
+          "isLocal": false,
+          "rules": []
+        },
+        {
+          "name": "buzz",
+          "typeName": "number",
+          "isArray": false,
+          "isLocal": false,
+          "rules": [{ "id": "required" }]
+        }
+      ],
+      "rules": []
     }
   ],
-  "enums": []
+  "enums": [
+    { "name": "createGizmoSize", "values": ["small", "medium", "big", "XL"] }
+  ]
 }
