@@ -1,15 +1,20 @@
 import { major } from 'semver';
 import { singular } from 'pluralize';
+import { camel, pascal } from 'case';
+
+import {
+  factories,
+  objectFactories,
+  ObjectValidationRule,
+  ValidationRule,
+  ValidationRuleFactory,
+} from './rules';
 import { OpenAPI } from './types';
-import { camel } from 'case';
-import { ValidationRule } from './validators/types';
 
 export class Parser {
-  constructor(
-    private readonly schema: OpenAPI.Schema,
-    private readonly title: string,
-  ) {}
+  constructor(private readonly schema: OpenAPI.Schema) {}
 
+  private readonly ruleFactories: ValidationRuleFactory[] = factories;
   private enums: Enum[];
   private anonymousTypes: Type[];
 
@@ -20,7 +25,7 @@ export class Parser {
     const types = this.parseDefinitions();
 
     return {
-      title: this.title,
+      title: pascal(this.schema.info.title),
       majorVersion: major(this.schema.info.version),
       interfaces,
       types: [...types, ...this.anonymousTypes],
@@ -46,11 +51,14 @@ export class Parser {
     const methods: Method[] = [];
 
     for (const path of paths) {
+      const commonParameters = this.schema.paths[path]['parameters'] || [];
       for (const verb in this.schema.paths[path]) {
+        if (verb === 'parameters') continue;
+
         const operation: OpenAPI.Operation = this.schema.paths[path][verb];
         methods.push({
           name: operation.operationId || 'UNNAMED',
-          parameters: this.parseParameters(operation),
+          parameters: this.parseParameters(operation, commonParameters),
           description: this.parseDescription(
             operation.summary,
             operation.description,
@@ -72,10 +80,17 @@ export class Parser {
     return;
   }
 
-  private parseParameters(operation: OpenAPI.Operation): Parameter[] {
-    if (!operation.parameters?.length) return [];
+  private parseParameters(
+    operation: OpenAPI.Operation,
+    commonParameters: (OpenAPI.Parameter | OpenAPI.Reference)[],
+  ): Parameter[] {
+    const allParameters = [
+      ...(operation.parameters || []),
+      ...commonParameters,
+    ];
+    if (!allParameters.length) return [];
 
-    return operation.parameters.map((p) =>
+    return allParameters.map((p) =>
       this.parseParameter(this.resolve(p), operation.operationId || ''),
     );
   }
@@ -97,15 +112,12 @@ export class Parser {
       typeName,
       isLocal,
       isArray,
-      rules: param.required ? [{ id: 'required' }] : [],
+      rules: this.parseRules(this.resolve(resolved), param.required),
     };
   }
 
   private parseType(
-    def:
-      | Exclude<OpenAPI.Parameter, OpenAPI.BodyParameter>
-      | OpenAPI.JsonSchema
-      | OpenAPI.Reference,
+    def: OpenAPI.NonBodyParameter | OpenAPI.JsonSchema | OpenAPI.Reference,
     localName: string,
     parentName: string,
   ): {
@@ -116,17 +128,36 @@ export class Parser {
     rules: ValidationRule[];
   } {
     if (isReference(def)) {
-      return {
-        typeName: def.$ref.startsWith('#/definitions/')
-          ? def.$ref.substr(14)
-          : def.$ref,
-        isLocal: true,
-        isArray: false,
-        rules: [],
-      };
+      const res = this.resolve(def) as unknown as
+        | OpenAPI.JsonSchema
+        | OpenAPI.NonBodyParameter;
+      if (def.$ref.startsWith('#/definitions/')) {
+        if (res.type === 'object') {
+          return {
+            typeName: def.$ref.substr(14),
+            isLocal: true,
+            isArray: false,
+            rules: this.parseRules(res),
+          };
+        } else {
+          return {
+            typeName: res.type,
+            isLocal: false,
+            isArray: false,
+            rules: this.parseRules(res),
+          };
+        }
+      } else {
+        return {
+          typeName: def.$ref,
+          isLocal: true,
+          isArray: false,
+          rules: this.parseRules(res),
+        };
+      }
     }
-
     const resolved = isReference(def) ? this.resolve(def) : def;
+    const rules = this.parseRules(resolved);
 
     switch (resolved.type) {
       case 'string':
@@ -140,14 +171,14 @@ export class Parser {
             typeName: enumName,
             isLocal: true,
             isArray: false,
-            rules: [],
+            rules,
           };
         } else {
           return {
             typeName: resolved.type,
             isLocal: false,
             isArray: false,
-            rules: [],
+            rules,
           };
         }
       case 'number':
@@ -158,7 +189,7 @@ export class Parser {
           typeName: resolved.type,
           isLocal: false,
           isArray: false,
-          rules: [],
+          rules,
         };
       case 'array':
         const items = this.parseType(resolved.items, localName, parentName);
@@ -166,7 +197,7 @@ export class Parser {
           typeName: items.typeName,
           isLocal: items.isLocal,
           isArray: true,
-          rules: [],
+          rules,
         };
       case 'object':
         const typeName = camel(`${parentName}_${localName}`);
@@ -174,20 +205,21 @@ export class Parser {
           name: typeName,
           properties: this.parseProperties(resolved, typeName),
           description: resolved.description,
+          rules: this.parseObjectRules(def),
         });
 
         return {
           typeName,
           isLocal: true,
           isArray: false,
-          rules: [],
+          rules,
         };
       default:
         return {
           typeName: '>>>>>>>>>>>>>>>>> unknown <<<<<<<<<<<<<<<<<<<',
           isLocal: true,
           isArray: false,
-          rules: [],
+          rules,
         };
     }
   }
@@ -204,13 +236,17 @@ export class Parser {
     if (!success) return;
 
     const response = this.resolve(success);
+    const name =
+      isReference(success) && success.$ref.startsWith('#/responses/')
+        ? success.$ref.substr(11)
+        : undefined;
 
     if (!response.schema) return;
 
     return this.parseType(
       response.schema,
       'response',
-      operation.operationId || '',
+      name || operation.operationId || '',
     );
   }
 
@@ -227,6 +263,7 @@ export class Parser {
         description: def.description,
         properties:
           def.type === 'object' ? this.parseProperties(def, def.name) : [],
+        rules: this.parseObjectRules(def),
       };
     });
   }
@@ -264,7 +301,7 @@ export class Parser {
           typeName,
           isArray,
           isLocal,
-          rules: required.has(name) ? [{ id: 'required' }] : [],
+          rules: this.parseRules(resolvedProp, required.has(name)),
         });
       }
       return props;
@@ -288,6 +325,25 @@ export class Parser {
       return itemOrRef;
     }
   }
+
+  private parseRules(
+    def: OpenAPI.JsonSchema | OpenAPI.NonBodyParameter,
+    required?: boolean,
+  ): ValidationRule[] {
+    const rules = this.ruleFactories
+      .map((f) => f(def))
+      .filter((x): x is ValidationRule => !!x);
+
+    return required ? [{ id: 'required' }, ...rules] : rules;
+  }
+
+  private parseObjectRules(
+    def: OpenAPI.JsonSchema | OpenAPI.NonBodyParameter,
+  ): ObjectValidationRule[] {
+    return objectFactories
+      .map((f) => f(def))
+      .filter((x): x is ObjectValidationRule => !!x);
+  }
 }
 
 export type Service = {
@@ -302,6 +358,7 @@ export type Type = {
   name: string;
   description?: string | string[];
   properties: Property[];
+  rules: ObjectValidationRule[];
 };
 
 export type Enum = {

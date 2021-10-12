@@ -1,0 +1,161 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "Example schema to exercise all parser functionality",
+    "version": "1.2.3-rc4",
+    "title": "Ility Example"
+  },
+  "parameters": {
+    "search": {
+      "name": "search",
+      "in": "query",
+      "type": "string"
+    }
+  },
+  "responses": {
+    "gizmo": {
+      "description": "A single of gizmo",
+      "schema": { "$ref": "#/definitions/gizmo" }
+    },
+    "gizmos": {
+      "description": "A collection of gizmos",
+      "schema": {
+        "type": "object",
+        "required": ["data"],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": { "$ref": "#/definitions/gizmo" }
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/gizmos": {
+      "get": {
+        "summary": "Only has a summary",
+        "operationId": "getGizmos",
+        "parameters": [{ "$ref": "#/parameters/search" }],
+        "responses": {
+          "default": { "$ref": "#/responses/gizmos" }
+        }
+      },
+      "post": {
+        "summary": "Has a summary in addition to a description",
+        "description": "Has a description in addition to a summary",
+        "operationId": "createGizmo",
+        "responses": {
+          "default": { "$ref": "#/responses/gizmo" }
+        }
+      }
+    },
+    "/widgets": {
+      "get": {
+        "operationId": "getWidgets",
+        "responses": {
+          "default": {
+            "description": "Response a defined object schema by reference",
+            "schema": { "$ref": "#/definitions/widget" }
+          }
+        }
+      },
+      "post": {
+        "operationId": "createWidget",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "The new widget",
+            "schema": {
+              "type": "object",
+              "required": ["name"],
+              "properties": {
+                "name": { "type": "string" }
+              },
+              "additionalProperties": false
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "Response a defined object schema by reference"
+          }
+        }
+      },
+      "put": {
+        "operationId": "putWidget",
+        "responses": {
+          "400": {
+            "description": "Error response only"
+          }
+        }
+      }
+    },
+    "/widgets/{id}/foo": {
+      "get": {
+        "operationId": "getWidgetFoo",
+        "responses": {
+          "default": {
+            "description": "Response a defined object schema by reference",
+            "schema": { "$ref": "#/definitions/widget" }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deleteWidgetFoo",
+        "responses": {
+          "default": {
+            "description": "Response without any schema"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "name": "id",
+          "description": "The widget ID",
+          "in": "path",
+          "type": "string",
+          "required": true,
+          "maxLength": 30
+        }
+      ]
+    }
+  },
+  "definitions": {
+    "gizmo": {
+      "type": "object",
+      "properties": {
+        "id": { "$ref": "#/definitions/id" },
+        "name": { "type": "string" }
+      }
+    },
+    "widget": {
+      "type": "object",
+      "required": ["id"],
+      "properties": {
+        "id": { "$ref": "#/definitions/id" },
+        "name": {
+          "type": "string",
+          "maxLength": 30,
+          "pattern": "[0-9a-fA-F]+"
+        },
+        "fiz": { "type": "number", "multipleOf": 3 },
+        "buzz": { "type": "number", "multipleOf": 5 },
+        "fizbuzz": { "type": "number", "multipleOf": 15 },
+        "foo": {
+          "type": "object",
+          "required": ["buzz"],
+          "properties": {
+            "fiz": { "type": "number" },
+            "buzz": { "type": "number" }
+          }
+        }
+      }
+    },
+    "id": {
+      "type": "string",
+      "maxLength": 30
+    }
+  }
+}

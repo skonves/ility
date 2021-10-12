@@ -35,16 +35,6 @@ Use `-o`, `--output` to supply the output folder:
 ility --output path/to/your/output/folder
 ```
 
-### Title
-
-Use `-t`, `--title` to supply the service title:
-
-```
-ility --title "widget service"
-```
-
-If the title is not supplied, then the file name of the input is used instead. (Piping from stdio requires a title to be supplied.)
-
 ### Language
 
 Use `-t`, `--title` to supply the target language:

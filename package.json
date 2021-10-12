@@ -15,7 +15,8 @@
     "lint": "eslint src/**/*.ts && prettier -c .",
     "lint:fix": "eslint --fix src/**/*.ts && prettier -w .",
     "pretest": "rm -rf coverage/*",
-    "prepack": "npm run build"
+    "prepack": "npm run build",
+    "create-snapshot": "npm run build && node lib/snapshot/create-snapshot.js"
   },
   "keywords": [],
   "author": "",
