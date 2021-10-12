@@ -8,7 +8,7 @@ export namespace OpenAPI {
     schemes?: ['http' | 'https' | 'ws' | 'wss'];
     consumes?: string[];
     produces?: string[];
-    paths: Paths;
+    paths: Record<string, PathItem>;
     definitions?: Definitions;
     parameters?: ParameterDefinitions;
     responses?: ResponseDefinitions;
@@ -25,10 +25,6 @@ export namespace OpenAPI {
     termsOfService?: string;
     contact?: Contact;
     license?: License;
-  };
-
-  export type Paths = {
-    [path: string]: PathItem;
   };
 
   export type PathItem = {

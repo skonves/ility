@@ -26,13 +26,6 @@ const { argv } = yargs(hideBin(process.argv))
     string: true,
     description: `Target output language (${allowedTargets.join(', ')})`,
     requiresArg: true,
-  })
-  .option('title', {
-    alias: 't',
-    string: true,
-    description:
-      'Title of the service. Defaults to the input filename if omitted.',
-    requiresArg: true,
   });
 // .option('watch', {
 //   alias: 'w',
@@ -67,9 +60,7 @@ const { argv } = yargs(hideBin(process.argv))
     }
 
     if (schema) {
-      const t = getTitle(input, title);
-      if (!t) throw new Error('Must specify input or title');
-      for (const file of generate(schema, t, language)) {
+      for (const file of generate(schema, language)) {
         const path = file.path.slice(0, file.path.length - 1);
         const filename = file.path[file.path.length - 1];
 
@@ -89,14 +80,4 @@ async function readStreamToString(stream: NodeJS.ReadStream) {
   const chunks: any[] = [];
   for await (const chunk of stream) chunks.push(chunk);
   return Buffer.concat(chunks).toString('utf8');
-}
-
-function getTitle(
-  input: string | undefined,
-  title: string | undefined,
-): string | undefined {
-  if (title || !input) return title;
-
-  const filename = input?.split(sep);
-  return filename[filename?.length - 1].split('.')[0];
 }

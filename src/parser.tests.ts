@@ -1,557 +1,86 @@
-import { Parser, Service } from './parser';
-import { OpenAPI } from './types';
+import { readFileSync } from 'fs';
+import { join } from 'path';
+
+import { Parser, ReturnType } from './parser';
 
 describe('parser', () => {
-  it('creates a null service', () => {
+  it('recreates a valid snapshot', () => {
     // ARRANGE
-    const schema = build();
-    const title = 'test';
-    const parser = new Parser(schema, title);
+    const snapshot = JSON.parse(
+      readFileSync(join('src', 'snapshot', 'snapshot.json')).toString(),
+    );
+    const schema = JSON.parse(
+      readFileSync(join('src', 'snapshot', 'example.oas2.json')).toString(),
+    );
 
     // ACT
-    const result = parser.parse();
+    const result = JSON.parse(JSON.stringify(new Parser(schema).parse()));
 
     // ASSERT
-    expect(result).toEqual({
-      title,
-      majorVersion: 1,
-      interfaces: [],
-      types: [],
-      enums: [],
-    });
+    expect(result).toStrictEqual(snapshot);
   });
 
-  it('handles a method without parameters or a return type', () => {
+  it('creates a type for every local typeName', () => {
     // ARRANGE
-    const schema = build({
-      paths: {
-        '/things': {
-          get: {
-            summary: 'Method without params or return type',
-            operationId: 'getThings',
-            responses: {
-              default: {
-                description: 'success',
-              },
-            },
-          },
-        },
-      },
-    });
-    const title = 'test';
-    const parser = new Parser(schema, title);
+    const schema = JSON.parse(
+      readFileSync(join('src', 'snapshot', 'example.oas2.json')).toString(),
+    );
 
     // ACT
-    const result = parser.parse();
+    const result = new Parser(schema).parse();
 
     // ASSERT
-    expect(result).toEqual<Service>({
-      title,
-      majorVersion: 1,
-      interfaces: [
-        {
-          name: 'thing',
-          methods: [
-            {
-              description: 'Method without params or return type',
-              name: 'getThings',
-              parameters: [],
-              returnType: undefined,
-            },
-          ],
-        },
-      ],
-      types: [],
-      enums: [],
-    });
+    const fromMethodParameters = new Set(
+      result.interfaces
+        .map((i) => i.methods)
+        .reduce((a, b) => a.concat(b), [])
+        .map((i) => i.parameters)
+        .reduce((a, b) => a.concat(b), [])
+        .filter((p) => p.isLocal)
+        .map((p) => p.typeName),
+    );
+
+    const fromMethodReturnTypes = new Set(
+      result.interfaces
+        .map((i) => i.methods)
+        .reduce((a, b) => a.concat(b), [])
+        .map((i) => i.returnType)
+        .filter((t): t is ReturnType => !!t)
+        .filter((p) => p.isLocal)
+        .map((p) => p.typeName),
+    );
+
+    const fromTypes = new Set(
+      result.types
+        .map((t) => t.properties)
+        .reduce((a, b) => a.concat(b), [])
+        .filter((p) => p.isLocal)
+        .map((p) => p.typeName),
+    );
+
+    const typeNames = new Set(result.types.map((t) => t.name));
+
+    for (const localTypeName of [
+      ...fromMethodParameters,
+      ...fromMethodReturnTypes,
+      ...fromTypes,
+    ]) {
+      expect(typeNames.has(localTypeName)).toEqual(true);
+    }
   });
 
-  it('handles a method with anonymously typed body param', () => {
+  it('creates types with unique names', () => {
     // ARRANGE
-    const schema = build({
-      paths: {
-        '/things': {
-          post: {
-            summary: 'Method with anonymously typed body param',
-            operationId: 'postThing',
-            parameters: [
-              {
-                in: 'body',
-                name: 'body',
-                description: 'Description of body parameter',
-                schema: {
-                  type: 'object',
-                  description: 'Description of anonymous type',
-                  required: ['id'],
-                  properties: {
-                    id: {
-                      type: 'string',
-                    },
-                  },
-                },
-              },
-            ],
-            responses: {
-              default: {
-                description: 'success',
-              },
-            },
-          },
-        },
-      },
-    });
-    const title = 'test';
-    const parser = new Parser(schema, title);
+    const schema = JSON.parse(
+      readFileSync(join('src', 'snapshot', 'example.oas2.json')).toString(),
+    );
 
     // ACT
-    const result = parser.parse();
+    const result = new Parser(schema).parse();
 
     // ASSERT
-    expect(result).toEqual<Service>({
-      title,
-      majorVersion: 1,
-      interfaces: [
-        {
-          name: 'thing',
-          methods: [
-            {
-              description: 'Method with anonymously typed body param',
-              name: 'postThing',
-              parameters: [
-                {
-                  description: 'Description of body parameter',
-                  isArray: false,
-                  isLocal: true,
-                  rules: [],
-                  name: 'body',
-                  typeName: 'postThingBody',
-                },
-              ],
-              returnType: undefined,
-            },
-          ],
-        },
-      ],
-      types: [
-        {
-          name: 'postThingBody',
-          description: 'Description of anonymous type',
-          properties: [
-            {
-              name: 'id',
-              description: undefined,
-              typeName: 'string',
-              isArray: false,
-              rules: [{ id: 'required' }],
-              isLocal: false,
-            },
-          ],
-        },
-      ],
-      enums: [],
-    });
-  });
+    const typeNames = result.types.map((t) => t.name);
 
-  it('handles a method with defined body object param', () => {
-    // ARRANGE
-    const schema = build({
-      paths: {
-        '/things': {
-          post: {
-            summary: 'Method with defined body object param',
-            operationId: 'postThing',
-            parameters: [
-              {
-                in: 'body',
-                name: 'body',
-                schema: { $ref: '#/definitions/thing' },
-              },
-            ],
-            responses: {
-              default: {
-                description: 'success',
-              },
-            },
-          },
-        },
-      },
-      definitions: {
-        thing: {
-          type: 'object',
-          description: 'Description of defined type',
-          required: ['id'],
-          properties: {
-            id: {
-              type: 'string',
-            },
-          },
-        },
-      },
-    });
-    const title = 'test';
-    const parser = new Parser(schema, title);
-
-    // ACT
-    const result = parser.parse();
-
-    // ASSERT
-    expect(result).toEqual<Service>({
-      title,
-      majorVersion: 1,
-      interfaces: [
-        {
-          name: 'thing',
-          methods: [
-            {
-              description: 'Method with defined body object param',
-              name: 'postThing',
-              parameters: [
-                {
-                  isArray: false,
-                  description: undefined,
-                  isLocal: true,
-                  rules: [],
-                  name: 'body',
-                  typeName: 'thing',
-                },
-              ],
-              returnType: undefined,
-            },
-          ],
-        },
-      ],
-      types: [
-        {
-          name: 'thing',
-          description: 'Description of defined type',
-          properties: [
-            {
-              name: 'id',
-              description: undefined,
-              typeName: 'string',
-              isArray: false,
-              rules: [{ id: 'required' }],
-              isLocal: false,
-            },
-          ],
-        },
-      ],
-      enums: [],
-    });
-  });
-
-  it('handles a method with a pre-defined scalar parameter', () => {
-    // ARRANGE
-    const schema = build({
-      parameters: {
-        id: {
-          in: 'path',
-          name: 'id',
-          type: 'string',
-          required: true,
-        },
-      },
-      paths: {
-        '/things/{:id}': {
-          post: {
-            summary: 'Method with a pre-defined scalar parameter',
-            operationId: 'getThingById',
-            parameters: [{ $ref: '#/parameters/id' }],
-            responses: {
-              default: {
-                description: 'success',
-              },
-            },
-          },
-        },
-      },
-    });
-    const title = 'test';
-    const parser = new Parser(schema, title);
-
-    // ACT
-    const result = parser.parse();
-
-    // ASSERT
-    expect(result).toEqual<Service>({
-      title,
-      majorVersion: 1,
-      interfaces: [
-        {
-          name: 'thing',
-          methods: [
-            {
-              description: 'Method with a pre-defined scalar parameter',
-              name: 'getThingById',
-              parameters: [
-                {
-                  isArray: false,
-                  description: undefined,
-                  isLocal: false,
-                  rules: [{ id: 'required' }],
-                  name: 'id',
-                  typeName: 'string',
-                },
-              ],
-              returnType: undefined,
-            },
-          ],
-        },
-      ],
-      types: [],
-      enums: [],
-    });
-  });
-
-  it('handles a method with a anonymous scalar parameters', () => {
-    // ARRANGE
-    const schema = build({
-      parameters: {
-        id: {
-          in: 'path',
-          name: 'id',
-          type: 'string',
-          required: true,
-        },
-      },
-      paths: {
-        '/things/{:id}': {
-          post: {
-            summary: 'Method with a anonymous scalar parameters',
-            operationId: 'getThingById',
-            parameters: [
-              {
-                in: 'path',
-                name: 'id',
-                type: 'string',
-                required: true,
-              },
-              {
-                in: 'query',
-                name: 'num',
-                type: 'number',
-                required: true,
-              },
-              {
-                in: 'query',
-                name: 'int',
-                type: 'integer',
-                required: true,
-              },
-              {
-                in: 'query',
-                name: 'strs',
-                type: 'array',
-                items: { type: 'string' },
-                required: true,
-              },
-            ],
-            responses: {
-              default: {
-                description: 'success',
-              },
-            },
-          },
-        },
-      },
-    });
-    const title = 'test';
-    const parser = new Parser(schema, title);
-
-    // ACT
-    const result = parser.parse();
-
-    // ASSERT
-    expect(result).toEqual<Service>({
-      title,
-      majorVersion: 1,
-      interfaces: [
-        {
-          name: 'thing',
-          methods: [
-            {
-              description: 'Method with a anonymous scalar parameters',
-              name: 'getThingById',
-              parameters: [
-                {
-                  isArray: false,
-                  description: undefined,
-                  isLocal: false,
-                  rules: [{ id: 'required' }],
-                  name: 'id',
-                  typeName: 'string',
-                },
-                {
-                  isArray: false,
-                  description: undefined,
-                  isLocal: false,
-                  rules: [{ id: 'required' }],
-                  name: 'num',
-                  typeName: 'number',
-                },
-                {
-                  isArray: false,
-                  description: undefined,
-                  isLocal: false,
-                  rules: [{ id: 'required' }],
-                  name: 'int',
-                  typeName: 'integer',
-                },
-                {
-                  isArray: true,
-                  description: undefined,
-                  isLocal: false,
-                  rules: [{ id: 'required' }],
-                  name: 'strs',
-                  typeName: 'string',
-                },
-              ],
-              returnType: undefined,
-            },
-          ],
-        },
-      ],
-      types: [],
-      enums: [],
-    });
-  });
-
-  it('handles a method with defined object param that contains an anonymous child object', () => {
-    // ARRANGE
-    const schema = build({
-      paths: {
-        '/things': {
-          post: {
-            summary:
-              'method with defined object param that contains an anonymous child object',
-            operationId: 'postThing',
-            parameters: [
-              {
-                in: 'body',
-                name: 'body',
-                schema: { $ref: '#/definitions/thing' },
-              },
-            ],
-            responses: {
-              default: {
-                description: 'success',
-              },
-            },
-          },
-        },
-      },
-      definitions: {
-        thing: {
-          type: 'object',
-          description: 'Description of defined type',
-          required: ['id'],
-          properties: {
-            id: {
-              type: 'string',
-            },
-            child: {
-              type: 'object',
-              properties: {
-                foo: { type: 'string' },
-                bar: { type: 'string' },
-              },
-            },
-          },
-        },
-      },
-    });
-    const title = 'test';
-    const parser = new Parser(schema, title);
-
-    // ACT
-    const result = parser.parse();
-
-    // ASSERT
-    expect(result).toEqual<Service>({
-      title,
-      majorVersion: 1,
-      interfaces: [
-        {
-          name: 'thing',
-          methods: [
-            {
-              description:
-                'method with defined object param that contains an anonymous child object',
-              name: 'postThing',
-              parameters: [
-                {
-                  isArray: false,
-                  description: undefined,
-                  isLocal: true,
-                  rules: [],
-                  name: 'body',
-                  typeName: 'thing',
-                },
-              ],
-              returnType: undefined,
-            },
-          ],
-        },
-      ],
-      types: [
-        {
-          name: 'thing',
-          description: 'Description of defined type',
-          properties: [
-            {
-              name: 'id',
-              description: undefined,
-              typeName: 'string',
-              isArray: false,
-              rules: [{ id: 'required' }],
-              isLocal: false,
-            },
-            {
-              name: 'child',
-              description: undefined,
-              typeName: 'thingChild',
-              isArray: false,
-              rules: [],
-              isLocal: true,
-            },
-          ],
-        },
-        {
-          name: 'thingChild',
-          description: undefined,
-          properties: [
-            {
-              name: 'foo',
-              description: undefined,
-              typeName: 'string',
-              isArray: false,
-              rules: [],
-              isLocal: false,
-            },
-            {
-              name: 'bar',
-              description: undefined,
-              typeName: 'string',
-              isArray: false,
-              rules: [],
-              isLocal: false,
-            },
-          ],
-        },
-      ],
-      enums: [],
-    });
+    expect(typeNames.length).toEqual(new Set(typeNames).size);
   });
 });
-
-function build(test?: Partial<OpenAPI.Schema>): OpenAPI.Schema {
-  return {
-    swagger: '2.0',
-    info: {
-      title: 'Test schema',
-      version: '1.2.3',
-    },
-    paths: {},
-    ...test,
-  };
-}
