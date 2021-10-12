@@ -45,6 +45,15 @@
         "summary": "Has a summary in addition to a description",
         "description": "Has a description in addition to a summary",
         "operationId": "createGizmo",
+        "parameters": [
+          {
+            "in": "query",
+            "description": "Anonymous enum",
+            "name": "size",
+            "type": "string",
+            "enum": ["small", "medium", "big", "XL"]
+          }
+        ],
         "responses": {
           "default": { "$ref": "#/responses/gizmo" }
         }
@@ -133,8 +142,20 @@
     "widget": {
       "type": "object",
       "required": ["id"],
+      "allOf": [
+        {
+          "type": "object",
+          "properties": {
+            "id": { "$ref": "#/definitions/id" }
+          }
+        },
+        { "$ref": "#/definitions/newWidget" }
+      ],
+      "additionalProperties": false
+    },
+    "newWidget": {
+      "type": "object",
       "properties": {
-        "id": { "$ref": "#/definitions/id" },
         "name": {
           "type": "string",
           "maxLength": 30,

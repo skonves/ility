@@ -156,16 +156,15 @@ export class Parser {
         };
       }
     }
-    const resolved = isReference(def) ? this.resolve(def) : def;
-    const rules = this.parseRules(resolved);
+    const rules = this.parseRules(def);
 
-    switch (resolved.type) {
+    switch (def.type) {
       case 'string':
-        if (resolved.enum) {
+        if (def.enum) {
           const enumName = camel(`${parentName}_${singular(localName)}`);
           this.enums.push({
             name: enumName,
-            values: resolved.enum,
+            values: def.enum,
           });
           return {
             typeName: enumName,
@@ -175,7 +174,7 @@ export class Parser {
           };
         } else {
           return {
-            typeName: resolved.type,
+            typeName: def.type,
             isLocal: false,
             isArray: false,
             rules,
@@ -186,13 +185,13 @@ export class Parser {
       case 'boolean':
       case 'null':
         return {
-          typeName: resolved.type,
+          typeName: def.type,
           isLocal: false,
           isArray: false,
           rules,
         };
       case 'array':
-        const items = this.parseType(resolved.items, localName, parentName);
+        const items = this.parseType(def.items, localName, parentName);
         return {
           typeName: items.typeName,
           isLocal: items.isLocal,
@@ -203,8 +202,8 @@ export class Parser {
         const typeName = camel(`${parentName}_${localName}`);
         this.anonymousTypes.push({
           name: typeName,
-          properties: this.parseProperties(resolved, typeName),
-          description: resolved.description,
+          properties: this.parseProperties(def, typeName),
+          description: def.description,
           rules: this.parseObjectRules(def),
         });
 
@@ -273,13 +272,16 @@ export class Parser {
     parentName?: string,
   ): Property[] {
     if (def.allOf) {
-      const { allOf, properties, ...rest } = def;
+      const { allOf, ...rest } = def;
       return def.allOf
         .map((subDef) =>
-          this.parseProperties({
-            ...rest,
-            properties: this.resolve(subDef),
-          }),
+          this.parseProperties(
+            {
+              ...rest,
+              properties: this.resolve(subDef).properties as any,
+            },
+            parentName,
+          ),
         )
         .reduce((a, b) => a.concat(b), []);
     } else {

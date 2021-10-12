@@ -58,7 +58,10 @@ describe('parser', () => {
         .map((p) => p.typeName),
     );
 
-    const typeNames = new Set(result.types.map((t) => t.name));
+    const typeNames = new Set([
+      ...result.types.map((t) => t.name),
+      ...result.enums.map((e) => e.name),
+    ]);
 
     for (const localTypeName of [
       ...fromMethodParameters,
