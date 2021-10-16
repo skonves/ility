@@ -31,7 +31,7 @@ export class InterfaceFactory implements FileFactory {
       ],
       contents: `${warning}\n\n${Array.from(
         this.buildInterface(i, service),
-      ).join('\n')}`,
+      ).join('\n')}\n`,
     }));
 
     const typeFiles: File[] = service.types.map((t) => ({
@@ -42,7 +42,7 @@ export class InterfaceFactory implements FileFactory {
       ],
       contents: `${warning}\n\n${Array.from(this.buildStruct(t, service)).join(
         '\n',
-      )}`,
+      )}\n`,
     }));
 
     const enumFiles: File[] = service.enums.map((e) => ({
@@ -53,7 +53,7 @@ export class InterfaceFactory implements FileFactory {
       ],
       contents: `${warning}\n\n${Array.from(this.buildEnum(e, service)).join(
         '\n',
-      )}`,
+      )}\n`,
     }));
 
     return [...interfaceFiles, ...typeFiles, ...enumFiles];
