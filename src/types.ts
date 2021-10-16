@@ -1,233 +1,184 @@
-/* eslint-disable @typescript-eslint/no-namespace */
-export namespace OpenAPI {
-  export type Schema = {
-    swagger: '2.0';
-    info: Info;
-    host?: string;
-    basePath?: string;
-    schemes?: ['http' | 'https' | 'ws' | 'wss'];
-    consumes?: string[];
-    produces?: string[];
-    paths: Record<string, PathItem>;
-    definitions?: Definitions;
-    parameters?: ParameterDefinitions;
-    responses?: ResponseDefinitions;
-    securityDefinitions?: SecurityDefinitions;
-    security?: SecurityRequirement[];
-    tags?: Tag[];
-    externalDocs?: ExternalDocumentation;
-  };
+export type Service = {
+  title: string;
+  majorVersion: number;
+  interfaces: Interface[];
+  types: Type[];
+  enums: Enum[];
+};
 
-  export type Info = {
-    version: string;
-    title: string;
-    description?: string;
-    termsOfService?: string;
-    contact?: Contact;
-    license?: License;
-  };
+export type Type = {
+  name: string;
+  description?: string | string[];
+  properties: Property[];
+  rules: ObjectValidationRule[];
+};
 
-  export type PathItem = {
-    $ref?: string;
-    get?: Operation;
-    put?: Operation;
-    post?: Operation;
-    delete?: Operation;
-    options?: Operation;
-    head?: Operation;
-    patch?: Operation;
-    parameters?: (Parameter | Reference)[];
-  };
+export type Enum = {
+  name: string;
+  values: string[];
+};
 
-  export type BodyParameter = {
-    name: string;
-    in: 'body';
-    description?: string;
-    required?: boolean;
-    schema: JsonSchema | Reference;
-  };
+export type Property = {
+  name: string;
+  description?: string | string[];
+  typeName: string;
+  isArray: boolean;
+  isLocal: boolean;
+  rules: ValidationRule[];
+};
 
-  export type NonBodyParameter = {
-    name: string;
-    in: 'query' | 'header' | 'path' | 'formData';
-    description?: string;
-    required?: boolean;
-    allowEmptyValue?: boolean;
-    collectionFormat?: 'csv' | 'ssv' | 'tsv' | 'pipes' | 'multi';
-    default?: any;
-  } & Exclude<JsonSchema, ObjectSchema>;
+export type Interface = {
+  name: string;
+  description?: string | string[];
+  methods: Method[];
+};
 
-  export type Parameter = BodyParameter | NonBodyParameter;
+export type Method = {
+  name: string;
+  description?: string | string[];
+  parameters: Parameter[];
+  returnType: ReturnType | undefined;
+};
 
-  export type Headers = {
-    [name: string]: Header;
-  };
+export type Parameter = {
+  name: string;
+  description?: string | string[];
+  typeName: string;
+  isArray: boolean;
+  isLocal: boolean;
+  rules: ValidationRule[];
+};
 
-  export type Header = {
-    description?: string;
-    collectionFormat?: 'csv' | 'ssv' | 'tsv' | 'pipes' | 'multi';
-    default?: any;
-  } & JsonSchema;
+export type ReturnType = {
+  typeName: string;
+  isArray: boolean;
+  isLocal: boolean;
+  rules: ValidationRule[];
+};
 
-  export type Reference = {
-    $ref: string;
-  };
+export type RequiredRule = {
+  id: 'required';
+};
 
-  export type Definitions = {
-    [name: string]: JsonSchema;
-  };
+export type StringRule = {
+  id: 'string';
+};
 
-  export type ParameterDefinitions = {
-    [name: string]: Parameter;
-  };
+export type StringMaxLengthRule = {
+  id: 'string-max-length';
+  length: number;
+};
 
-  export type Responses = {
-    [httpStatusCode: string]: Response | Reference;
-  };
+export type StringMinLengthRule = {
+  id: 'string-min-length';
+  length: number;
+};
 
-  export type ResponseDefinitions = {
-    [name: string]: Response;
-  };
+export type StringPatternRule = {
+  id: 'string-pattern';
+  pattern: string;
+};
 
-  export type Response = {
-    description: string;
-    schema?: JsonSchema | Reference;
-    headers?: Headers;
-    examples?: Examples;
-  };
+export type StringFormatRule = {
+  id: 'string-format';
+  format: string;
+};
 
-  export type Examples = {
-    [mimeType: string]: any;
-  };
+export type StringEnumRule = {
+  id: 'string-enum';
+  values: string[];
+};
 
-  export type SecurityDefinitions = {
-    [name: string]: SecurityScheme;
-  };
+export type NumberMultipleOfRule = {
+  id: 'number-multiple-of';
+  value: number;
+};
 
-  export type SecurityScheme =
-    | {
-        type: 'basic';
-        description?: string;
-      }
-    | {
-        type: 'apiKey';
-        description?: string;
-        name: string;
-        in: 'header' | 'query';
-      }
-    | {
-        type: 'oauth2';
-        description?: string;
-        name: string;
-        authorizationUrl: string;
-        tokenUrl: string;
-        scopes: Scopes;
-      };
+export type NumberGtRule = {
+  id: 'number-gt';
+  value: number;
+};
 
-  export type Scopes = {
-    [name: string]: string;
-  };
+export type NumberGteRule = {
+  id: 'number-gte';
+  value: number;
+};
 
-  export type SecurityRequirement = {
-    [name: string]: string[];
-  };
+export type NumberLtRule = {
+  id: 'number-lt';
+  value: number;
+};
 
-  export type Tag = {
-    name: string;
-    description?: string;
-    externalDocs?: ExternalDocumentation;
-  };
+export type NumberLteRule = {
+  id: 'number-lte';
+  value: number;
+};
 
-  export type ExternalDocumentation = {
-    description?: string;
-    url: string;
-  };
+export type ArrayMaxItemsRule = {
+  id: 'array-max-items';
+  max: number;
+};
 
-  export type Contact = {
-    name?: string;
-    url?: string;
-    email?: string;
-  };
+export type ArrayMinItemsRule = {
+  id: 'array-min-items';
+  min: number;
+};
 
-  export type License = {
-    name: string;
-    url?: string;
-  };
+export type ArrayUniqueItemsRule = {
+  id: 'array-unique-items';
+  required: boolean;
+};
 
-  export type Operation = {
-    tags?: string[];
-    summary?: string;
-    description?: string;
-    externalDocs?: ExternalDocumentation;
-    operationId?: string;
-    consumes?: string[];
-    produces?: string[];
-    parameters?: (Parameter | Reference)[];
-    responses: Responses;
-    schemes?: ['http' | 'https' | 'ws' | 'wss'];
-    deprecated?: boolean;
-    security?: SecurityRequirement[];
-  };
+export type ObjectMinPropertiesRule = {
+  id: 'object-min-properties';
+  min: number;
+};
 
-  export type JsonSchema =
-    | StringSchema
-    | NumberSchema
-    | BooleanSchema
-    | NullSchema
-    | ArraySchema
-    | ObjectSchema;
+export type ObjectMaxPropertiesRule = {
+  id: 'object-max-properties';
+  max: number;
+};
 
-  export type StringSchema = {
-    type: 'string';
-    description?: string;
-    minLength?: number;
-    maxLength?: number;
-    pattern?: string;
-    format?: string;
-    enum?: string[];
-  };
+export type ObjectAdditionalPropertiesRule = {
+  id: 'object-additional-properties';
+  forbidden: true;
+};
 
-  export type NumberSchema = {
-    type: 'number' | 'integer';
-    description?: string;
-    multipleOf?: number;
-    minimum?: number;
-    exclusiveMinimum?: boolean;
-    maximum?: number;
-    exclusiveMaximum?: boolean;
-  };
+export type ValidationRule =
+  | RequiredRule
+  | StringMaxLengthRule
+  | StringMinLengthRule
+  | StringPatternRule
+  | StringFormatRule
+  | StringEnumRule
+  | NumberMultipleOfRule
+  | NumberGtRule
+  | NumberGteRule
+  | NumberLtRule
+  | NumberLteRule
+  | ArrayMaxItemsRule
+  | ArrayMinItemsRule
+  | ArrayUniqueItemsRule;
 
-  export type BooleanSchema = {
-    type: 'boolean';
-    description?: string;
-  };
+export type ObjectValidationRule =
+  | ObjectMinPropertiesRule
+  | ObjectMaxPropertiesRule
+  | ObjectAdditionalPropertiesRule;
 
-  export type NullSchema = {
-    type: 'null';
-    description?: string;
-  };
+export interface Parser {
+  parse(): Service;
+}
 
-  export type ArraySchema = {
-    type: 'array';
-    description?: string;
-    items: JsonSchema | Reference;
-    minItems?: number;
-    maxItems?: number;
-    uniqueItems?: boolean;
-  };
+export interface FileFactory {
+  get target(): string;
+  build(service: Service): File[];
+}
 
-  export type ObjectSchema = {
-    type: 'object';
-    description?: string;
-    required?: string[];
-    properties?: Record<string, JsonSchema | Reference>;
-    allOf?: (Record<string, JsonSchema | Reference> | Reference)[];
-    minProperties?: number;
-    maxProperties?: number;
-    additionalProperties?: boolean;
-  };
+export type File = {
+  path: string[];
+  contents: string;
+};
 
-  export type TypePrimitive = JsonSchema['type'];
-
-  export type PropertyType = TypePrimitive | TypePrimitive[];
+export function isRequired(obj: { rules: ValidationRule[] }): boolean {
+  return obj.rules.some((r) => r.id === 'required');
 }
