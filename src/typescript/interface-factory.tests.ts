@@ -7,9 +7,7 @@ describe('parser', () => {
   it('recreates a valid snapshot', () => {
     // ARRANGE
     const service = JSON.parse(
-      readFileSync(
-        join('src', 'typescript', 'snapshot', 'service.json'),
-      ).toString(),
+      readFileSync(join('src', 'oas2', 'snapshot', 'snapshot.json')).toString(),
     );
 
     // ACT

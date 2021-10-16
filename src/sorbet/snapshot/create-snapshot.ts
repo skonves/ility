@@ -4,7 +4,7 @@ import { InterfaceFactory } from '../interface-factory';
 
 const service = JSON.parse(
   readFileSync(
-    join(process.cwd(), 'src', 'sorbet', 'snapshot', 'service.json'),
+    join(process.cwd(), 'src', 'oas2', 'snapshot', 'snapshot.json'),
   ).toString('utf8'),
 );
 
