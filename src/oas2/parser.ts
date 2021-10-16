@@ -339,9 +339,18 @@ export class OAS2Parser implements Parser {
     def: OpenAPI.JsonSchema | OpenAPI.NonBodyParameter,
     required?: boolean,
   ): ValidationRule[] {
-    const rules = this.ruleFactories
+    const localRules = this.ruleFactories
       .map((f) => f(def))
       .filter((x): x is ValidationRule => !!x);
+
+    const itemRules =
+      def.type === 'array'
+        ? this.ruleFactories
+            .map((f) => f(this.resolve(def.items)))
+            .filter((x): x is ValidationRule => !!x)
+        : [];
+
+    const rules = [...localRules, ...itemRules];
 
     return required ? [{ id: 'required' }, ...rules] : rules;
   }

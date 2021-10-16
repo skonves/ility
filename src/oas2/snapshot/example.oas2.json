@@ -69,7 +69,10 @@
             "collectionFormat": "csv",
             "minItems": 2,
             "maxItems": 6,
-            "items": { "type": "number" }
+            "items": {
+              "type": "string",
+              "pattern": "[0-9a-fA-F]+"
+            }
           }
         ],
         "responses": {

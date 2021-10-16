@@ -58,12 +58,13 @@
             {
               "name": "factors",
               "description": "array of primitive",
-              "typeName": "number",
+              "typeName": "string",
               "isLocal": false,
               "isArray": true,
               "rules": [
                 { "id": "array-max-items", "max": 6 },
-                { "id": "array-min-items", "min": 2 }
+                { "id": "array-min-items", "min": 2 },
+                { "id": "string-pattern", "pattern": "[0-9a-fA-F]+" }
               ]
             }
           ],
