@@ -27,4 +27,11 @@ module IlityExample::V1::GizmoService
   end
   def create_gizmo(size: nil)
   end
+
+  sig do
+    abstract.params(factors: T.nilable(T::Array[String])).
+      returns(IlityExample::V1::Gizmo)
+  end
+  def update_gizmo(factors: nil)
+  end
 end

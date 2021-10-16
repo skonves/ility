@@ -5,7 +5,7 @@ import { defaultFactories, ValidatorFactory } from '../validator-factory';
 
 const service = JSON.parse(
   readFileSync(
-    join(process.cwd(), 'src', 'typescript', 'snapshot', 'service.json'),
+    join(process.cwd(), 'src', 'oas2', 'snapshot', 'snapshot.json'),
   ).toString('utf8'),
 );
 
