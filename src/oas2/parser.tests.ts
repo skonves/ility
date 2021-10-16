@@ -1,20 +1,23 @@
 import { readFileSync } from 'fs';
 import { join } from 'path';
 
-import { Parser, ReturnType } from './parser';
+import { ReturnType } from '../types';
+import { OAS2Parser } from './parser';
 
 describe('parser', () => {
   it('recreates a valid snapshot', () => {
     // ARRANGE
     const snapshot = JSON.parse(
-      readFileSync(join('src', 'snapshot', 'snapshot.json')).toString(),
+      readFileSync(join('src', 'oas2', 'snapshot', 'snapshot.json')).toString(),
     );
     const schema = JSON.parse(
-      readFileSync(join('src', 'snapshot', 'example.oas2.json')).toString(),
+      readFileSync(
+        join('src', 'oas2', 'snapshot', 'example.oas2.json'),
+      ).toString(),
     );
 
     // ACT
-    const result = JSON.parse(JSON.stringify(new Parser(schema).parse()));
+    const result = JSON.parse(JSON.stringify(new OAS2Parser(schema).parse()));
 
     // ASSERT
     expect(result).toStrictEqual(snapshot);
@@ -23,11 +26,13 @@ describe('parser', () => {
   it('creates a type for every local typeName', () => {
     // ARRANGE
     const schema = JSON.parse(
-      readFileSync(join('src', 'snapshot', 'example.oas2.json')).toString(),
+      readFileSync(
+        join('src', 'oas2', 'snapshot', 'example.oas2.json'),
+      ).toString(),
     );
 
     // ACT
-    const result = new Parser(schema).parse();
+    const result = new OAS2Parser(schema).parse();
 
     // ASSERT
     const fromMethodParameters = new Set(
@@ -75,11 +80,13 @@ describe('parser', () => {
   it('creates types with unique names', () => {
     // ARRANGE
     const schema = JSON.parse(
-      readFileSync(join('src', 'snapshot', 'example.oas2.json')).toString(),
+      readFileSync(
+        join('src', 'oas2', 'snapshot', 'example.oas2.json'),
+      ).toString(),
     );
 
     // ACT
-    const result = new Parser(schema).parse();
+    const result = new OAS2Parser(schema).parse();
 
     // ASSERT
     const typeNames = result.types.map((t) => t.name);

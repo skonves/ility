@@ -16,7 +16,10 @@
     "lint:fix": "eslint --fix src/**/*.ts && prettier -w .",
     "pretest": "rm -rf coverage/*",
     "prepack": "npm run build",
-    "create-snapshot": "npm run build && node lib/snapshot/create-snapshot.js"
+    "create-snapshot": "npm run build && npm run create-snapshot:oas2 && npm run create-snapshot:sorbet && npm run create-snapshot:typescript",
+    "create-snapshot:oas2": "node lib/oas2/snapshot/create-snapshot.js",
+    "create-snapshot:sorbet": "node lib/sorbet/snapshot/create-snapshot.js",
+    "create-snapshot:typescript": "node lib/typescript/snapshot/create-snapshot.js"
   },
   "keywords": [],
   "author": "",

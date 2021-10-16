@@ -57,6 +57,24 @@
         "responses": {
           "default": { "$ref": "#/responses/gizmo" }
         }
+      },
+      "put": {
+        "operationId": "updateGizmo",
+        "parameters": [
+          {
+            "in": "query",
+            "description": "array of primitive",
+            "name": "factors",
+            "type": "array",
+            "collectionFormat": "csv",
+            "minItems": 2,
+            "maxItems": 6,
+            "items": { "type": "number" }
+          }
+        ],
+        "responses": {
+          "default": { "$ref": "#/responses/gizmo" }
+        }
       }
     },
     "/widgets": {

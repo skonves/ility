@@ -1,17 +1,17 @@
 import { readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import { format } from 'prettier';
-import { Parser } from '../parser';
+import { OAS2Parser } from '../parser';
 
 const schema = readFileSync(
-  join(process.cwd(), 'src', 'snapshot', 'example.oas2.json'),
+  join(process.cwd(), 'src', 'oas2', 'snapshot', 'example.oas2.json'),
 ).toString('utf8');
 
 const prettierOptions = JSON.parse(
   readFileSync(join(process.cwd(), '.prettierrc')).toString('utf8'),
 );
 
-const parser = new Parser(JSON.parse(schema));
+const parser = new OAS2Parser(JSON.parse(schema));
 
 const service = parser.parse();
 
@@ -21,6 +21,6 @@ const snapshot = format(JSON.stringify(service), {
 });
 
 writeFileSync(
-  join(process.cwd(), 'src', 'snapshot', 'snapshot.json'),
+  join(process.cwd(), 'src', 'oas2', 'snapshot', 'snapshot.json'),
   snapshot,
 );

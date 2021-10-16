@@ -2,16 +2,23 @@ import { major } from 'semver';
 import { singular } from 'pluralize';
 import { camel, pascal } from 'case';
 
-import {
-  factories,
-  objectFactories,
-  ObjectValidationRule,
-  ValidationRule,
-  ValidationRuleFactory,
-} from './rules';
 import { OpenAPI } from './types';
 
-export class Parser {
+import {
+  Enum,
+  Interface,
+  Method,
+  ObjectValidationRule,
+  Parameter,
+  Parser,
+  Property,
+  ReturnType,
+  Service,
+  Type,
+  ValidationRule,
+} from '../types';
+
+export class OAS2Parser implements Parser {
   constructor(private readonly schema: OpenAPI.Schema) {}
 
   private readonly ruleFactories: ValidationRuleFactory[] = factories;
@@ -348,67 +355,193 @@ export class Parser {
   }
 }
 
-export type Service = {
-  title: string;
-  majorVersion: number;
-  interfaces: Interface[];
-  types: Type[];
-  enums: Enum[];
-};
-
-export type Type = {
-  name: string;
-  description?: string | string[];
-  properties: Property[];
-  rules: ObjectValidationRule[];
-};
-
-export type Enum = {
-  name: string;
-  values: string[];
-};
-
-export type Property = {
-  name: string;
-  description?: string | string[];
-  typeName: string;
-  isArray: boolean;
-  isLocal: boolean;
-  rules: ValidationRule[];
-};
-
-export type Interface = {
-  name: string;
-  description?: string | string[];
-  methods: Method[];
-};
-
-export type Method = {
-  name: string;
-  description?: string | string[];
-  parameters: Parameter[];
-  returnType: ReturnType | undefined;
-};
-
-export type Parameter = {
-  name: string;
-  description?: string | string[];
-  typeName: string;
-  isArray: boolean;
-  isLocal: boolean;
-  rules: ValidationRule[];
-};
-
-export type ReturnType = {
-  typeName: string;
-  isArray: boolean;
-  isLocal: boolean;
-  rules: ValidationRule[];
-};
-
-export function isRequired(obj: { rules: ValidationRule[] }): boolean {
-  return obj.rules.some((r) => r.id === 'required');
+export interface ValidationRuleFactory {
+  (def: OpenAPI.JsonSchema | OpenAPI.NonBodyParameter):
+    | ValidationRule
+    | undefined;
 }
+
+export interface ObjectValidationRuleFactory {
+  (def: OpenAPI.JsonSchema | OpenAPI.NonBodyParameter):
+    | ObjectValidationRule
+    | undefined;
+}
+
+const stringMaxLengthFactory: ValidationRuleFactory = (def) => {
+  if (def.type === 'string' && typeof def.maxLength === 'number') {
+    return {
+      id: 'string-max-length',
+      length: def.maxLength,
+    };
+  } else {
+    return;
+  }
+};
+
+const stringMinLengthFactory: ValidationRuleFactory = (def) => {
+  if (def.type === 'string' && typeof def.minLength === 'number') {
+    return {
+      id: 'string-min-length',
+      length: def.minLength,
+    };
+  } else {
+    return;
+  }
+};
+
+const stringPatternFactory: ValidationRuleFactory = (def) => {
+  if (def.type === 'string' && typeof def.pattern === 'string') {
+    return {
+      id: 'string-pattern',
+      pattern: def.pattern,
+    };
+  } else {
+    return;
+  }
+};
+
+const stringFormatFactory: ValidationRuleFactory = (def) => {
+  if (def.type === 'string' && typeof def.format === 'string') {
+    return {
+      id: 'string-format',
+      format: def.format,
+    };
+  } else {
+    return;
+  }
+};
+
+const stringEnumFactory: ValidationRuleFactory = (def) => {
+  if (def.type === 'string' && Array.isArray(def.enum)) {
+    return {
+      id: 'string-enum',
+      values: def.enum,
+    };
+  } else {
+    return;
+  }
+};
+
+const numberMultipleOfFactory: ValidationRuleFactory = (def) => {
+  if (def.type === 'number' && typeof def.multipleOf === 'number') {
+    return {
+      id: 'number-multiple-of',
+      value: def.multipleOf,
+    };
+  } else {
+    return;
+  }
+};
+
+const numberGreaterThanFactory: ValidationRuleFactory = (def) => {
+  if (def.type === 'number' && typeof def.minimum === 'number') {
+    return {
+      id: def.exclusiveMinimum ? 'number-gt' : 'number-gte',
+      value: def.minimum,
+    };
+  } else {
+    return;
+  }
+};
+
+const numberLessThanFactory: ValidationRuleFactory = (def) => {
+  if (def.type === 'number' && typeof def.maximum === 'number') {
+    return {
+      id: def.exclusiveMaximum ? 'number-lt' : 'number-lte',
+      value: def.maximum,
+    };
+  } else {
+    return;
+  }
+};
+
+const arrayMinItemsFactory: ValidationRuleFactory = (def) => {
+  if (def.type === 'array' && typeof def.minItems === 'number') {
+    return {
+      id: 'array-min-items',
+      min: def.minItems,
+    };
+  } else {
+    return;
+  }
+};
+
+const arrayMaxItemsFactory: ValidationRuleFactory = (def) => {
+  if (def.type === 'array' && typeof def.maxItems === 'number') {
+    return {
+      id: 'array-max-items',
+      max: def.maxItems,
+    };
+  } else {
+    return;
+  }
+};
+
+const arrayUniqueItemsFactory: ValidationRuleFactory = (def) => {
+  if (def.type === 'array' && def.uniqueItems) {
+    return {
+      id: 'array-unique-items',
+      required: true,
+    };
+  } else {
+    return;
+  }
+};
+
+const objectMinPropertiesFactory: ObjectValidationRuleFactory = (def) => {
+  if (def.type === 'object' && typeof def.minProperties === 'number') {
+    return {
+      id: 'object-min-properties',
+      min: def.minProperties,
+    };
+  } else {
+    return;
+  }
+};
+
+const objectMaxPropertiesFactory: ObjectValidationRuleFactory = (def) => {
+  if (def.type === 'object' && typeof def.maxProperties === 'number') {
+    return {
+      id: 'object-max-properties',
+      max: def.maxProperties,
+    };
+  } else {
+    return;
+  }
+};
+
+const objectAdditionalPropertiesFactory: ObjectValidationRuleFactory = (
+  def,
+) => {
+  if (def.type === 'object' && def.additionalProperties === false) {
+    return {
+      id: 'object-additional-properties',
+      forbidden: true,
+    };
+  } else {
+    return;
+  }
+};
+
+const factories = [
+  stringEnumFactory,
+  stringFormatFactory,
+  stringMaxLengthFactory,
+  stringMinLengthFactory,
+  stringPatternFactory,
+  numberMultipleOfFactory,
+  numberGreaterThanFactory,
+  numberLessThanFactory,
+  arrayMaxItemsFactory,
+  arrayMinItemsFactory,
+  arrayUniqueItemsFactory,
+];
+
+const objectFactories = [
+  objectMaxPropertiesFactory,
+  objectMinPropertiesFactory,
+  objectAdditionalPropertiesFactory,
+];
 
 function isReference<T>(
   param: T | OpenAPI.Reference,
