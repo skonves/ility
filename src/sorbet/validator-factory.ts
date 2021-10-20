@@ -43,10 +43,31 @@ export class ValidatorFactory implements FileFactory {
   build(service: Service): File[] {
     return [
       {
+        path: [...buildNamespacedPath(service), `validation_error.rb`],
+        contents: `${Array.from(this.buildValidationErrorType(service)).join(
+          '\n',
+        )}\n`,
+      },
+      {
         path: [...buildNamespacedPath(service), `validators.rb`],
-        contents: Array.from(this.buildModule(service)).join('\n'),
+        contents: `${Array.from(this.buildModule(service)).join('\n')}\n`,
       },
     ];
+  }
+
+  private *buildValidationErrorType(service: Service): Iterable<string> {
+    yield* preamble();
+
+    yield `module ${buildModuleNamespace(service)}`;
+    yield `${prefix(1)}class ValidationError < T::Struct`;
+    yield `${prefix(2)}extend T::Sig`;
+    yield `${prefix(2)}include TypedStructHelper`;
+    yield '';
+    yield `${prefix(2)}const :code, T.nilable(String)`;
+    yield `${prefix(2)}const :title, T.nilable(String)`;
+    yield `${prefix(2)}const :path, T.nilable(String)`;
+    yield `${prefix(1)}end`;
+    yield `end`;
   }
 
   private *buildModule(service: Service): Iterable<string> {
@@ -119,12 +140,12 @@ export class ValidatorFactory implements FileFactory {
 
     yield `${prefix(indent)}sig do`;
     yield `${prefix(indent + 1)}params(${params}).`;
-    yield `${prefix(indent + 2)}return(T::Array[${errorType}])`;
+    yield `${prefix(indent + 2)}returns(T::Array[${errorType}])`;
     yield `${prefix(indent)}end`;
 
     yield `${prefix(indent)}def ${snake(
       `validate_${snake(type.name)}`,
-    )}(${snake(type.name)}:)`;
+    )}(${snake(type.name)})`;
     yield `${prefix(
       indent + 1,
     )}errors = T.let([], T::Array[${buildModuleNamespace(
@@ -186,7 +207,7 @@ function* buildSignature(
 
   yield `${prefix(indent)}sig do`;
   yield `${prefix(indent + 1)}params(${params}).`;
-  yield `${prefix(indent + 2)}return(T::Array[${errorType}])`;
+  yield `${prefix(indent + 2)}returns(T::Array[${errorType}])`;
   yield `${prefix(indent)}end`;
 }
 
@@ -194,11 +215,13 @@ function buildValidatorName(
   type: Parameter | Property | ReturnType,
   moduleNamespace: string,
 ): string {
-  const x = buildTypeName(type, moduleNamespace).split('::');
+  const x = buildTypeName(type, moduleNamespace, true).split('::');
 
-  x[x.length - 1] = `validate_${snake(x[x.length - 1])}`;
+  // x[x.length - 1] = `validate_${snake(x[x.length - 1])}`;
 
-  return x.join('::');
+  // return x.join('::');
+
+  return `validate_${snake(x[x.length - 1])}`;
 }
 
 function buildConditions(
@@ -208,8 +231,8 @@ function buildConditions(
 ): string[] {
   if (param.isArray) {
     return [
-      `${buildName(typeName, param.name)}.is_a? Array`,
-      `!${buildName(typeName, param.name)}.any? { |x| => ${conditions('x').join(
+      `${buildName(typeName, param.name)}.is_a?(Array)`,
+      `!${buildName(typeName, param.name)}.any? { |x| ${conditions('x').join(
         ' && ',
       )} }`,
     ];
@@ -232,7 +255,7 @@ function* buildError(
   yield `${prefix(indent)}errors << ${errorType}.new(`;
   yield `${prefix(indent + 1)}code: '${constant(id)}',`;
   yield `${prefix(indent + 1)}title: '${title}',`;
-  yield `${prefix(indent + 1)}path: '${path}',`;
+  yield `${prefix(indent + 1)}path: '${path}'`;
   yield `${prefix(indent)})`;
 }
 
@@ -241,14 +264,15 @@ const buildRequiredClause: RulelessGuardClauseFactory = function* (
   moduleNamespace,
   errorType,
   indent,
+  typeName,
 ) {
   if (isRequired(param)) {
     yield '';
-    yield `${prefix(indent)}if ${snake(param.name)}.nil?`;
+    yield `${prefix(indent)}if ${buildName(typeName, param.name)}.nil?`;
     yield* buildError(
       'required',
-      `"${snake(param.name)}" is required`,
-      snake(param.name),
+      `"${buildName(typeName, param.name)}" is required`,
+      buildName(typeName, param.name),
       errorType,
       indent + 1,
     );
@@ -275,15 +299,21 @@ const buildNonLocalTypeClause: RulelessGuardClauseFactory = function* (
 
     const conditions = param.isArray
       ? [
-          `${buildName(typeName, param.name)}.is_a? Array`,
+          `${buildName(typeName, param.name)}.is_a?(Array)`,
           `${buildName(
             typeName,
             param.name,
-          )}.any? { |x| => !x.is_a? ${rootTypeName} }`,
+          )}.any? { |x| !x.is_a?(${rootTypeName}) }`,
+        ]
+      : rootTypeName === 'T::Boolean'
+      ? [
+          `!${buildName(typeName, param.name)}.nil?`,
+          `!${buildName(typeName, param.name)}.is_a?(TrueClass)`,
+          `!${buildName(typeName, param.name)}.is_a?(FalseClass)`,
         ]
       : [
           `!${buildName(typeName, param.name)}.nil?`,
-          `!${buildName(typeName, param.name)}.is_a? ${rootTypeName}`,
+          `!${buildName(typeName, param.name)}.is_a?(${rootTypeName})`,
         ];
 
     const message = `"${buildName(
@@ -317,16 +347,21 @@ const buildLocalTypeClause: RulelessGuardClauseFactory = function* (
 ) {
   const name = buildName(typeName, param.name);
   const fn = buildValidatorName(param, moduleNamespace);
+  const must = (n: string) => {
+    return isRequired(param) ? n : `T.must(${n})`;
+  };
 
   if (param.isLocal) {
     yield '';
     if (param.isArray) {
       yield `${prefix(indent)}if !${name}.nil?`;
-      yield `${prefix(indent + 1)}${name}.each { |x| errors.concat(${fn}(x)) }`;
+      yield `${prefix(indent + 1)}${must(
+        name,
+      )}.each { |x| errors.concat(${fn}(x)) }`;
       yield `${prefix(indent)}end`;
     } else {
       yield `${prefix(indent)}if !${name}.nil?`;
-      yield `${prefix(indent + 1)}errors.concat(${fn}(${name}))`;
+      yield `${prefix(indent + 1)}errors.concat(${fn}(${must(name)}))`;
       yield `${prefix(indent)}end`;
     }
   }
@@ -351,7 +386,7 @@ export const buildStringMaxLengthClause: GuardClauseFactory = function* (
 ) {
   if (rule.id === 'string-max-length') {
     const conditions = buildConditions(typeName, param, (name: string) => [
-      `${buildName(typeName, name)}.is_a? String`,
+      `${buildName(typeName, name)}.is_a?(String)`,
       `${buildName(typeName, name)}.length > ${rule.length}`,
     ]);
 
@@ -379,7 +414,7 @@ export const buildStringMinLengthClause: GuardClauseFactory = function* (
 ) {
   if (rule.id === 'string-min-length') {
     const conditions = buildConditions(typeName, param, (name: string) => [
-      `${buildName(typeName, name)}.is_a? String`,
+      `${buildName(typeName, name)}.is_a?(String)`,
       `${buildName(typeName, name)}.length < ${rule.length}`,
     ]);
 
@@ -407,7 +442,7 @@ export const buildStringPatternClause: GuardClauseFactory = function* (
 ) {
   if (rule.id === 'string-pattern') {
     const conditions = buildConditions(typeName, param, (name: string) => [
-      `${buildName(typeName, name)}.is_a? String`,
+      `${buildName(typeName, name)}.is_a?(String)`,
       `/${rule.pattern}/.match? ${buildName(typeName, name)}`,
     ]);
 
@@ -437,7 +472,7 @@ export const buildNumberMultipleOfClause: GuardClauseFactory = function* (
 ) {
   if (rule.id === 'number-multiple-of') {
     const conditions = buildConditions(typeName, param, (name: string) => [
-      `${buildName(typeName, name)}.is_a? Numeric`,
+      `${buildName(typeName, name)}.is_a?(Numeric)`,
       `${buildName(typeName, name)} % ${rule.value} != 0`,
     ]);
 
@@ -467,7 +502,7 @@ export const buildNumberGreaterThanClause: GuardClauseFactory = function* (
 ) {
   if (rule.id === 'number-gt') {
     const conditions = buildConditions(typeName, param, (name: string) => [
-      `${buildName(typeName, name)}.is_a? Numeric`,
+      `${buildName(typeName, name)}.is_a?(Numeric)`,
       `${buildName(typeName, name)} <= ${rule.value}`,
     ]);
 
@@ -500,7 +535,7 @@ export const buildNumberGreaterOrEqualClause: GuardClauseFactory = function* (
 ) {
   if (rule.id === 'number-gte') {
     const conditions = buildConditions(typeName, param, (name: string) => [
-      `${buildName(typeName, name)}.is_a? Numeric`,
+      `${buildName(typeName, name)}.is_a?(Numeric)`,
       `${buildName(typeName, name)} < ${rule.value}`,
     ]);
 
@@ -534,7 +569,7 @@ export const buildNumberLessThanClause: GuardClauseFactory = function* (
 ) {
   if (rule.id === 'number-lt') {
     const conditions = buildConditions(typeName, param, (name: string) => [
-      `${buildName(typeName, name)}.is_a? Numeric`,
+      `${buildName(typeName, name)}.is_a?(Numeric)`,
       `${buildName(typeName, name)} => ${rule.value}`,
     ]);
 
@@ -565,7 +600,7 @@ export const buildNumberLessOrEqualClause: GuardClauseFactory = function* (
 ) {
   if (rule.id === 'number-lte') {
     const conditions = buildConditions(typeName, param, (name: string) => [
-      `${buildName(typeName, name)}.is_a? Numeric`,
+      `${buildName(typeName, name)}.is_a?(Numeric)`,
       `${buildName(typeName, name)} > ${rule.value}`,
     ]);
 
@@ -598,7 +633,7 @@ export const buildArrayMaxItemsClause: GuardClauseFactory = function* (
 ) {
   if (rule.id === 'array-max-items') {
     const conditions = buildConditions(typeName, param, (name: string) => [
-      `${buildName(typeName, name)}.is_an? Array`,
+      `${buildName(typeName, name)}.is_an?(Array)`,
       `${buildName(typeName, name)}.length > ${rule.max}`,
     ]);
 
@@ -626,7 +661,7 @@ export const buildArrayMinItemsClause: GuardClauseFactory = function* (
 ) {
   if (rule.id === 'array-min-items') {
     const conditions = buildConditions(typeName, param, (name: string) => [
-      `${buildName(typeName, name)}.is_an? Array`,
+      `${buildName(typeName, name)}.is_an?(Array)`,
       `${buildName(typeName, name)}.length < ${rule.min}`,
     ]);
 
@@ -654,7 +689,7 @@ export const buildArrayUniqueItemsClause: GuardClauseFactory = function* (
 ) {
   if (rule.id === 'array-unique-items') {
     const conditions = buildConditions(typeName, param, (name: string) => [
-      `${buildName(typeName, name)}.is_an? Array`,
+      `${buildName(typeName, name)}.is_an?(Array)`,
       `${buildName(typeName, name)}.length != ${buildName(
         typeName,
         name,

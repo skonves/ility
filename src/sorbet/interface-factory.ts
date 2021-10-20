@@ -66,7 +66,7 @@ export class InterfaceFactory implements FileFactory {
     yield '';
     for (const property of type.properties) {
       const typeName = buildTypeName(property, buildModuleNamespace(service));
-      yield `    const ${snake(property.name)}, ${
+      yield `    const :${snake(property.name)}, ${
         isRequired(property) ? typeName : `T.nilable(${typeName})`
       }`;
     }
