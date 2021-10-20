@@ -13,6 +13,6 @@ module IlityExample::V1
     extend T::Sig
     include TypedStructHelper
 
-    const name, String
+    const :name, String
   end
 end

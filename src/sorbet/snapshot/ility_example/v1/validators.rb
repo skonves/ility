@@ -13,16 +13,16 @@ module IlityExample::V1::Validators
 
   sig do
     params(search: T.nilable(String)).
-      return(T::Array[IlityExample::V1::ValidationError])
+      returns(T::Array[IlityExample::V1::ValidationError])
   end
   def validate_get_gizmos_params(search: nil)
     errors = T.let([], T::Array[IlityExample::V1::ValidationError])
 
-    if !search.nil? && !search.is_a? String
+    if !search.nil? && !search.is_a?(String)
       errors << IlityExample::V1::ValidationError.new(
         code: 'TYPE',
         title: '"search" must be a String if supplied',
-        path: 'search',
+        path: 'search'
       )
     end
 
@@ -31,13 +31,13 @@ module IlityExample::V1::Validators
 
   sig do
     params(size: T.nilable(IlityExample::V1::CreateGizmoSize)).
-      return(T::Array[IlityExample::V1::ValidationError])
+      returns(T::Array[IlityExample::V1::ValidationError])
   end
   def validate_create_gizmo_params(size: nil)
     errors = T.let([], T::Array[IlityExample::V1::ValidationError])
 
     if !size.nil?
-      errors.concat(IlityExample::V1::validate_create_gizmo_size(size))
+      errors.concat(validate_create_gizmo_size(T.must(size)))
     end
 
     errors
@@ -45,40 +45,40 @@ module IlityExample::V1::Validators
 
   sig do
     params(factors: T.nilable(T::Array[String])).
-      return(T::Array[IlityExample::V1::ValidationError])
+      returns(T::Array[IlityExample::V1::ValidationError])
   end
   def validate_update_gizmo_params(factors: nil)
     errors = T.let([], T::Array[IlityExample::V1::ValidationError])
 
-    if factors.is_a? Array && factors.any? { |x| => !x.is_a? String }
+    if factors.is_a?(Array) && factors.any? { |x| !x.is_a?(String) }
       errors << IlityExample::V1::ValidationError.new(
         code: 'TYPE',
         title: 'Each item in "factors" must be a String if supplied',
-        path: 'factors',
+        path: 'factors'
       )
     end
 
-    if factors.is_a? Array && !factors.any? { |x| => x.is_an? Array && x.length > 6 }
+    if factors.is_a?(Array) && !factors.any? { |x| x.is_an?(Array) && x.length > 6 }
       errors << IlityExample::V1::ValidationError.new(
         code: 'ARRAY_MAX_ITEMS',
         title: '"factors" max length is 6',
-        path: 'factors',
+        path: 'factors'
       )
     end
 
-    if factors.is_a? Array && !factors.any? { |x| => x.is_an? Array && x.length < 2 }
+    if factors.is_a?(Array) && !factors.any? { |x| x.is_an?(Array) && x.length < 2 }
       errors << IlityExample::V1::ValidationError.new(
         code: 'ARRAY_MIN_ITEMS',
         title: '"factors" min length is 2',
-        path: 'factors',
+        path: 'factors'
       )
     end
 
-    if factors.is_a? Array && !factors.any? { |x| => x.is_a? String && /[0-9a-fA-F]+/.match? x }
+    if factors.is_a?(Array) && !factors.any? { |x| x.is_a?(String) && /[0-9a-fA-F]+/.match? x }
       errors << IlityExample::V1::ValidationError.new(
         code: 'STRING_PATTERN',
         title: '"factors" must match the pattern /[0-9a-fA-F]+/',
-        path: 'factors',
+        path: 'factors'
       )
     end
 
@@ -87,13 +87,13 @@ module IlityExample::V1::Validators
 
   sig do
     params(body: T.nilable(IlityExample::V1::CreateWidgetBody)).
-      return(T::Array[IlityExample::V1::ValidationError])
+      returns(T::Array[IlityExample::V1::ValidationError])
   end
   def validate_create_widget_params(body: nil)
     errors = T.let([], T::Array[IlityExample::V1::ValidationError])
 
     if !body.nil?
-      errors.concat(IlityExample::V1::validate_create_widget_body(body))
+      errors.concat(validate_create_widget_body(T.must(body)))
     end
 
     errors
@@ -101,7 +101,7 @@ module IlityExample::V1::Validators
 
   sig do
     params(id: String).
-      return(T::Array[IlityExample::V1::ValidationError])
+      returns(T::Array[IlityExample::V1::ValidationError])
   end
   def validate_get_widget_foo_params(id:)
     errors = T.let([], T::Array[IlityExample::V1::ValidationError])
@@ -110,23 +110,23 @@ module IlityExample::V1::Validators
       errors << IlityExample::V1::ValidationError.new(
         code: 'REQUIRED',
         title: '"id" is required',
-        path: 'id',
+        path: 'id'
       )
     end
 
-    if !id.nil? && !id.is_a? String
+    if !id.nil? && !id.is_a?(String)
       errors << IlityExample::V1::ValidationError.new(
         code: 'TYPE',
         title: '"id" must be a String',
-        path: 'id',
+        path: 'id'
       )
     end
 
-    if id.is_a? String && id.length > 30
+    if id.is_a?(String) && id.length > 30
       errors << IlityExample::V1::ValidationError.new(
         code: 'STRING_MAX_LENGTH',
         title: '"id" max length is 30',
-        path: 'id',
+        path: 'id'
       )
     end
 
@@ -135,7 +135,7 @@ module IlityExample::V1::Validators
 
   sig do
     params(id: String).
-      return(T::Array[IlityExample::V1::ValidationError])
+      returns(T::Array[IlityExample::V1::ValidationError])
   end
   def validate_delete_widget_foo_params(id:)
     errors = T.let([], T::Array[IlityExample::V1::ValidationError])
@@ -144,23 +144,23 @@ module IlityExample::V1::Validators
       errors << IlityExample::V1::ValidationError.new(
         code: 'REQUIRED',
         title: '"id" is required',
-        path: 'id',
+        path: 'id'
       )
     end
 
-    if !id.nil? && !id.is_a? String
+    if !id.nil? && !id.is_a?(String)
       errors << IlityExample::V1::ValidationError.new(
         code: 'TYPE',
         title: '"id" must be a String',
-        path: 'id',
+        path: 'id'
       )
     end
 
-    if id.is_a? String && id.length > 30
+    if id.is_a?(String) && id.length > 30
       errors << IlityExample::V1::ValidationError.new(
         code: 'STRING_MAX_LENGTH',
         title: '"id" max length is 30',
-        path: 'id',
+        path: 'id'
       )
     end
 
@@ -169,32 +169,32 @@ module IlityExample::V1::Validators
 
   sig do
     params(gizmo: IlityExample::V1::Gizmo).
-      return(T::Array[IlityExample::V1::ValidationError])
+      returns(T::Array[IlityExample::V1::ValidationError])
   end
-  def validate_gizmo(gizmo:)
+  def validate_gizmo(gizmo)
     errors = T.let([], T::Array[IlityExample::V1::ValidationError])
 
-    if !gizmo.id.nil? && !gizmo.id.is_a? String
+    if !gizmo.id.nil? && !gizmo.id.is_a?(String)
       errors << IlityExample::V1::ValidationError.new(
         code: 'TYPE',
         title: '"gizmo.id" must be a String if supplied',
-        path: 'gizmo.id',
+        path: 'gizmo.id'
       )
     end
 
-    if gizmo.id.is_a? String && gizmo.id.length > 30
+    if gizmo.id.is_a?(String) && gizmo.id.length > 30
       errors << IlityExample::V1::ValidationError.new(
         code: 'STRING_MAX_LENGTH',
         title: '"gizmo.id" max length is 30',
-        path: 'gizmo.id',
+        path: 'gizmo.id'
       )
     end
 
-    if !gizmo.name.nil? && !gizmo.name.is_a? String
+    if !gizmo.name.nil? && !gizmo.name.is_a?(String)
       errors << IlityExample::V1::ValidationError.new(
         code: 'TYPE',
         title: '"gizmo.name" must be a String if supplied',
-        path: 'gizmo.name',
+        path: 'gizmo.name'
       )
     end
 
@@ -203,109 +203,109 @@ module IlityExample::V1::Validators
 
   sig do
     params(widget: IlityExample::V1::Widget).
-      return(T::Array[IlityExample::V1::ValidationError])
+      returns(T::Array[IlityExample::V1::ValidationError])
   end
-  def validate_widget(widget:)
+  def validate_widget(widget)
     errors = T.let([], T::Array[IlityExample::V1::ValidationError])
 
-    if id.nil?
+    if widget.id.nil?
       errors << IlityExample::V1::ValidationError.new(
         code: 'REQUIRED',
-        title: '"id" is required',
-        path: 'id',
+        title: '"widget.id" is required',
+        path: 'widget.id'
       )
     end
 
-    if !widget.id.nil? && !widget.id.is_a? String
+    if !widget.id.nil? && !widget.id.is_a?(String)
       errors << IlityExample::V1::ValidationError.new(
         code: 'TYPE',
         title: '"widget.id" must be a String',
-        path: 'widget.id',
+        path: 'widget.id'
       )
     end
 
-    if widget.id.is_a? String && widget.id.length > 30
+    if widget.id.is_a?(String) && widget.id.length > 30
       errors << IlityExample::V1::ValidationError.new(
         code: 'STRING_MAX_LENGTH',
         title: '"widget.id" max length is 30',
-        path: 'widget.id',
+        path: 'widget.id'
       )
     end
 
-    if !widget.name.nil? && !widget.name.is_a? String
+    if !widget.name.nil? && !widget.name.is_a?(String)
       errors << IlityExample::V1::ValidationError.new(
         code: 'TYPE',
         title: '"widget.name" must be a String if supplied',
-        path: 'widget.name',
+        path: 'widget.name'
       )
     end
 
-    if widget.name.is_a? String && widget.name.length > 30
+    if widget.name.is_a?(String) && widget.name.length > 30
       errors << IlityExample::V1::ValidationError.new(
         code: 'STRING_MAX_LENGTH',
         title: '"widget.name" max length is 30',
-        path: 'widget.name',
+        path: 'widget.name'
       )
     end
 
-    if widget.name.is_a? String && /[0-9a-fA-F]+/.match? widget.name
+    if widget.name.is_a?(String) && /[0-9a-fA-F]+/.match? widget.name
       errors << IlityExample::V1::ValidationError.new(
         code: 'STRING_PATTERN',
         title: '"widget.name" must match the pattern /[0-9a-fA-F]+/',
-        path: 'widget.name',
+        path: 'widget.name'
       )
     end
 
-    if !widget.fiz.nil? && !widget.fiz.is_a? Numeric
+    if !widget.fiz.nil? && !widget.fiz.is_a?(Numeric)
       errors << IlityExample::V1::ValidationError.new(
         code: 'TYPE',
         title: '"widget.fiz" must be a Numeric if supplied',
-        path: 'widget.fiz',
+        path: 'widget.fiz'
       )
     end
 
-    if widget.fiz.is_a? Numeric && widget.fiz % 3 != 0
+    if widget.fiz.is_a?(Numeric) && widget.fiz % 3 != 0
       errors << IlityExample::V1::ValidationError.new(
         code: 'NUMBER_MULTIPLE_OF',
         title: '"widget.fiz" must be a multiple of 3',
-        path: 'widget.fiz',
+        path: 'widget.fiz'
       )
     end
 
-    if !widget.buzz.nil? && !widget.buzz.is_a? Numeric
+    if !widget.buzz.nil? && !widget.buzz.is_a?(Numeric)
       errors << IlityExample::V1::ValidationError.new(
         code: 'TYPE',
         title: '"widget.buzz" must be a Numeric if supplied',
-        path: 'widget.buzz',
+        path: 'widget.buzz'
       )
     end
 
-    if widget.buzz.is_a? Numeric && widget.buzz % 5 != 0
+    if widget.buzz.is_a?(Numeric) && widget.buzz % 5 != 0
       errors << IlityExample::V1::ValidationError.new(
         code: 'NUMBER_MULTIPLE_OF',
         title: '"widget.buzz" must be a multiple of 5',
-        path: 'widget.buzz',
+        path: 'widget.buzz'
       )
     end
 
-    if !widget.fizbuzz.nil? && !widget.fizbuzz.is_a? Numeric
+    if !widget.fizbuzz.nil? && !widget.fizbuzz.is_a?(Numeric)
       errors << IlityExample::V1::ValidationError.new(
         code: 'TYPE',
         title: '"widget.fizbuzz" must be a Numeric if supplied',
-        path: 'widget.fizbuzz',
+        path: 'widget.fizbuzz'
       )
     end
 
-    if widget.fizbuzz.is_a? Numeric && widget.fizbuzz % 15 != 0
+    if widget.fizbuzz.is_a?(Numeric) && widget.fizbuzz % 15 != 0
       errors << IlityExample::V1::ValidationError.new(
         code: 'NUMBER_MULTIPLE_OF',
         title: '"widget.fizbuzz" must be a multiple of 15',
-        path: 'widget.fizbuzz',
+        path: 'widget.fizbuzz'
       )
     end
 
     if !widget.foo.nil?
-      errors.concat(IlityExample::V1::validate_widget_foo(widget.foo))
+      errors.concat(validate_widget_foo(T.must(widget.foo)))
     end
 
     errors
@@ -313,85 +313,85 @@ module IlityExample::V1::Validators
 
   sig do
     params(new_widget: IlityExample::V1::NewWidget).
-      return(T::Array[IlityExample::V1::ValidationError])
+      returns(T::Array[IlityExample::V1::ValidationError])
   end
-  def validate_new_widget(new_widget:)
+  def validate_new_widget(new_widget)
     errors = T.let([], T::Array[IlityExample::V1::ValidationError])
 
-    if !new_widget.name.nil? && !new_widget.name.is_a? String
+    if !new_widget.name.nil? && !new_widget.name.is_a?(String)
       errors << IlityExample::V1::ValidationError.new(
         code: 'TYPE',
         title: '"new_widget.name" must be a String if supplied',
-        path: 'new_widget.name',
+        path: 'new_widget.name'
       )
     end
 
-    if new_widget.name.is_a? String && new_widget.name.length > 30
+    if new_widget.name.is_a?(String) && new_widget.name.length > 30
       errors << IlityExample::V1::ValidationError.new(
         code: 'STRING_MAX_LENGTH',
         title: '"new_widget.name" max length is 30',
-        path: 'new_widget.name',
+        path: 'new_widget.name'
       )
     end
 
-    if new_widget.name.is_a? String && /[0-9a-fA-F]+/.match? new_widget.name
+    if new_widget.name.is_a?(String) && /[0-9a-fA-F]+/.match? new_widget.name
       errors << IlityExample::V1::ValidationError.new(
         code: 'STRING_PATTERN',
         title: '"new_widget.name" must match the pattern /[0-9a-fA-F]+/',
-        path: 'new_widget.name',
+        path: 'new_widget.name'
       )
     end
 
-    if !new_widget.fiz.nil? && !new_widget.fiz.is_a? Numeric
+    if !new_widget.fiz.nil? && !new_widget.fiz.is_a?(Numeric)
       errors << IlityExample::V1::ValidationError.new(
         code: 'TYPE',
         title: '"new_widget.fiz" must be a Numeric if supplied',
-        path: 'new_widget.fiz',
+        path: 'new_widget.fiz'
       )
     end
 
-    if new_widget.fiz.is_a? Numeric && new_widget.fiz % 3 != 0
+    if new_widget.fiz.is_a?(Numeric) && new_widget.fiz % 3 != 0
       errors << IlityExample::V1::ValidationError.new(
         code: 'NUMBER_MULTIPLE_OF',
         title: '"new_widget.fiz" must be a multiple of 3',
-        path: 'new_widget.fiz',
+        path: 'new_widget.fiz'
       )
     end
 
-    if !new_widget.buzz.nil? && !new_widget.buzz.is_a? Numeric
+    if !new_widget.buzz.nil? && !new_widget.buzz.is_a?(Numeric)
       errors << IlityExample::V1::ValidationError.new(
         code: 'TYPE',
         title: '"new_widget.buzz" must be a Numeric if supplied',
-        path: 'new_widget.buzz',
+        path: 'new_widget.buzz'
       )
     end
 
-    if new_widget.buzz.is_a? Numeric && new_widget.buzz % 5 != 0
+    if new_widget.buzz.is_a?(Numeric) && new_widget.buzz % 5 != 0
       errors << IlityExample::V1::ValidationError.new(
         code: 'NUMBER_MULTIPLE_OF',
         title: '"new_widget.buzz" must be a multiple of 5',
-        path: 'new_widget.buzz',
+        path: 'new_widget.buzz'
       )
     end
 
-    if !new_widget.fizbuzz.nil? && !new_widget.fizbuzz.is_a? Numeric
+    if !new_widget.fizbuzz.nil? && !new_widget.fizbuzz.is_a?(Numeric)
       errors << IlityExample::V1::ValidationError.new(
         code: 'TYPE',
         title: '"new_widget.fizbuzz" must be a Numeric if supplied',
-        path: 'new_widget.fizbuzz',
+        path: 'new_widget.fizbuzz'
       )
     end
 
-    if new_widget.fizbuzz.is_a? Numeric && new_widget.fizbuzz % 15 != 0
+    if new_widget.fizbuzz.is_a?(Numeric) && new_widget.fizbuzz % 15 != 0
       errors << IlityExample::V1::ValidationError.new(
         code: 'NUMBER_MULTIPLE_OF',
         title: '"new_widget.fizbuzz" must be a multiple of 15',
-        path: 'new_widget.fizbuzz',
+        path: 'new_widget.fizbuzz'
       )
     end
 
     if !new_widget.foo.nil?
-      errors.concat(IlityExample::V1::validate_new_widget_foo(new_widget.foo))
+      errors.concat(validate_new_widget_foo(T.must(new_widget.foo)))
     end
 
     errors
@@ -399,21 +399,21 @@ module IlityExample::V1::Validators
 
   sig do
     params(gizmos_response: IlityExample::V1::GizmosResponse).
-      return(T::Array[IlityExample::V1::ValidationError])
+      returns(T::Array[IlityExample::V1::ValidationError])
   end
-  def validate_gizmos_response(gizmos_response:)
+  def validate_gizmos_response(gizmos_response)
     errors = T.let([], T::Array[IlityExample::V1::ValidationError])
 
-    if data.nil?
+    if gizmos_response.data.nil?
       errors << IlityExample::V1::ValidationError.new(
         code: 'REQUIRED',
-        title: '"data" is required',
-        path: 'data',
+        title: '"gizmos_response.data" is required',
+        path: 'gizmos_response.data'
       )
     end
 
     if !gizmos_response.data.nil?
-      gizmos_response.data.each { |x| errors.concat(T::Array[IlityExample::V1::validate_gizmo(x)) }
+      gizmos_response.data.each { |x| errors.concat(validate_gizmo(x)) }
     end
 
     errors
@@ -421,24 +421,24 @@ module IlityExample::V1::Validators
 
   sig do
     params(create_widget_body: IlityExample::V1::CreateWidgetBody).
-      return(T::Array[IlityExample::V1::ValidationError])
+      returns(T::Array[IlityExample::V1::ValidationError])
   end
-  def validate_create_widget_body(create_widget_body:)
+  def validate_create_widget_body(create_widget_body)
     errors = T.let([], T::Array[IlityExample::V1::ValidationError])
 
-    if name.nil?
+    if create_widget_body.name.nil?
       errors << IlityExample::V1::ValidationError.new(
         code: 'REQUIRED',
-        title: '"name" is required',
-        path: 'name',
+        title: '"create_widget_body.name" is required',
+        path: 'create_widget_body.name'
       )
     end
 
-    if !create_widget_body.name.nil? && !create_widget_body.name.is_a? String
+    if !create_widget_body.name.nil? && !create_widget_body.name.is_a?(String)
       errors << IlityExample::V1::ValidationError.new(
         code: 'TYPE',
         title: '"create_widget_body.name" must be a String',
-        path: 'create_widget_body.name',
+        path: 'create_widget_body.name'
       )
     end
 
@@ -447,32 +447,32 @@ module IlityExample::V1::Validators
 
   sig do
     params(widget_foo: IlityExample::V1::WidgetFoo).
-      return(T::Array[IlityExample::V1::ValidationError])
+      returns(T::Array[IlityExample::V1::ValidationError])
   end
-  def validate_widget_foo(widget_foo:)
+  def validate_widget_foo(widget_foo)
     errors = T.let([], T::Array[IlityExample::V1::ValidationError])
 
-    if !widget_foo.fiz.nil? && !widget_foo.fiz.is_a? Numeric
+    if !widget_foo.fiz.nil? && !widget_foo.fiz.is_a?(Numeric)
       errors << IlityExample::V1::ValidationError.new(
         code: 'TYPE',
         title: '"widget_foo.fiz" must be a Numeric if supplied',
-        path: 'widget_foo.fiz',
+        path: 'widget_foo.fiz'
       )
     end
 
-    if buzz.nil?
+    if widget_foo.buzz.nil?
       errors << IlityExample::V1::ValidationError.new(
         code: 'REQUIRED',
-        title: '"buzz" is required',
-        path: 'buzz',
+        title: '"widget_foo.buzz" is required',
+        path: 'widget_foo.buzz'
       )
     end
 
-    if !widget_foo.buzz.nil? && !widget_foo.buzz.is_a? Numeric
+    if !widget_foo.buzz.nil? && !widget_foo.buzz.is_a?(Numeric)
       errors << IlityExample::V1::ValidationError.new(
         code: 'TYPE',
         title: '"widget_foo.buzz" must be a Numeric',
-        path: 'widget_foo.buzz',
+        path: 'widget_foo.buzz'
       )
     end
 
@@ -481,32 +481,32 @@ module IlityExample::V1::Validators
 
   sig do
     params(new_widget_foo: IlityExample::V1::NewWidgetFoo).
-      return(T::Array[IlityExample::V1::ValidationError])
+      returns(T::Array[IlityExample::V1::ValidationError])
   end
-  def validate_new_widget_foo(new_widget_foo:)
+  def validate_new_widget_foo(new_widget_foo)
     errors = T.let([], T::Array[IlityExample::V1::ValidationError])
 
-    if !new_widget_foo.fiz.nil? && !new_widget_foo.fiz.is_a? Numeric
+    if !new_widget_foo.fiz.nil? && !new_widget_foo.fiz.is_a?(Numeric)
       errors << IlityExample::V1::ValidationError.new(
         code: 'TYPE',
         title: '"new_widget_foo.fiz" must be a Numeric if supplied',
-        path: 'new_widget_foo.fiz',
+        path: 'new_widget_foo.fiz'
       )
     end
 
-    if buzz.nil?
+    if new_widget_foo.buzz.nil?
       errors << IlityExample::V1::ValidationError.new(
         code: 'REQUIRED',
-        title: '"buzz" is required',
-        path: 'buzz',
+        title: '"new_widget_foo.buzz" is required',
+        path: 'new_widget_foo.buzz'
       )
     end
 
-    if !new_widget_foo.buzz.nil? && !new_widget_foo.buzz.is_a? Numeric
+    if !new_widget_foo.buzz.nil? && !new_widget_foo.buzz.is_a?(Numeric)
       errors << IlityExample::V1::ValidationError.new(
         code: 'TYPE',
         title: '"new_widget_foo.buzz" must be a Numeric',
-        path: 'new_widget_foo.buzz',
+        path: 'new_widget_foo.buzz'
       )
     end
 

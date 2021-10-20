@@ -9,11 +9,12 @@
 require 'typed_struct_helper'
 
 module IlityExample::V1
-  class Gizmo < T::Struct
+  class ValidationError < T::Struct
     extend T::Sig
     include TypedStructHelper
 
-    const :id, T.nilable(String)
-    const :name, T.nilable(String)
+    const :code, T.nilable(String)
+    const :title, T.nilable(String)
+    const :path, T.nilable(String)
   end
 end

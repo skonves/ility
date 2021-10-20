@@ -13,6 +13,6 @@ module IlityExample::V1
     extend T::Sig
     include TypedStructHelper
 
-    const data, T::Array[IlityExample::V1::Gizmo]
+    const :data, T::Array[IlityExample::V1::Gizmo]
   end
 end
