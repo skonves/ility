@@ -1,5 +1,6 @@
 import { readFileSync, writeFileSync, mkdirSync } from 'fs';
 import { join } from 'path';
+import { ValidatorFactory } from '../validator-factory';
 import { InterfaceFactory } from '../interface-factory';
 
 const service = JSON.parse(
@@ -8,7 +9,10 @@ const service = JSON.parse(
   ).toString('utf8'),
 );
 
-const snapshotFiles = new InterfaceFactory().build(service);
+const snapshotFiles = [
+  ...new InterfaceFactory().build(service),
+  ...new ValidatorFactory().build(service),
+];
 
 for (const file of snapshotFiles) {
   const path = file.path.slice(0, file.path.length - 1);
