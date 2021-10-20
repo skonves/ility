@@ -7,6 +7,7 @@ import {
   defaultFactories,
   ValidatorFactory as TypescriptValidatorFactory,
 } from './typescript/validator-factory';
+import { ValidatorFactory as SorbetValidatorFactory } from './sorbet/validator-factory';
 
 const factories = [
   new ComposedFileFactory(
@@ -14,7 +15,11 @@ const factories = [
     new TypescriptInterfaceFactory(),
     new TypescriptValidatorFactory(defaultFactories),
   ),
-  new SorbetInterfaceFactory(),
+  new ComposedFileFactory(
+    'ruby-sorbet',
+    new SorbetInterfaceFactory(),
+    new SorbetValidatorFactory(),
+  ),
 ];
 
 export const allowedTargets = factories.map((f) => f.target);
