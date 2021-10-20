@@ -13,7 +13,7 @@ module IlityExample::V1
     extend T::Sig
     include TypedStructHelper
 
-    const fiz, T.nilable(Numeric)
-    const buzz, Numeric
+    const :fiz, T.nilable(Numeric)
+    const :buzz, Numeric
   end
 end

@@ -13,11 +13,11 @@ module IlityExample::V1
     extend T::Sig
     include TypedStructHelper
 
-    const id, String
-    const name, T.nilable(String)
-    const fiz, T.nilable(Numeric)
-    const buzz, T.nilable(Numeric)
-    const fizbuzz, T.nilable(Numeric)
-    const foo, T.nilable(IlityExample::V1::WidgetFoo)
+    const :id, String
+    const :name, T.nilable(String)
+    const :fiz, T.nilable(Numeric)
+    const :buzz, T.nilable(Numeric)
+    const :fizbuzz, T.nilable(Numeric)
+    const :foo, T.nilable(IlityExample::V1::WidgetFoo)
   end
 end
