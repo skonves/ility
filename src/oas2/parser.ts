@@ -108,7 +108,7 @@ export class OAS2Parser implements Parser {
   ): Parameter {
     const resolved = isBodyParameter(param) ? param.schema : param;
 
-    const { typeName, isLocal, isArray } = this.parseType(
+    const { typeName, isUnknown, isLocal, isArray } = this.parseType(
       resolved,
       param.name,
       methodName,
@@ -117,7 +117,7 @@ export class OAS2Parser implements Parser {
       name: param.name,
       description: this.parseDescription(undefined, param.description),
       typeName,
-      isUnknown: false,
+      isUnknown,
       isLocal,
       isArray,
       rules: this.parseRules(this.resolve(resolved), param.required),
@@ -161,7 +161,7 @@ export class OAS2Parser implements Parser {
       } else {
         return {
           typeName: def.$ref,
-          isUnknown: false,
+          isUnknown: true,
           isLocal: true,
           isArray: false,
           rules: this.parseRules(res),
@@ -232,7 +232,7 @@ export class OAS2Parser implements Parser {
         };
       default:
         return {
-          typeName: 'unkonwn',
+          typeName: 'unknown',
           isUnknown: true,
           isLocal: false,
           isArray: false,
