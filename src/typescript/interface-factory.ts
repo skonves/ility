@@ -87,14 +87,18 @@ export class InterfaceFactory implements FileFactory {
    */
   private *buildType(type: Type): Iterable<string> {
     yield* this.buildDescription(type.description);
-    yield `export type ${pascal(type.name)} = {`;
-    for (const prop of type.properties) {
-      yield* this.buildDescription(prop.description);
-      yield `  ${camel(prop.name)}${
-        isRequired(prop) ? '' : '?'
-      }: ${this.buildTypeName(prop)};`;
+    if (type.properties.length) {
+      yield `export type ${pascal(type.name)} = {`;
+      for (const prop of type.properties) {
+        yield* this.buildDescription(prop.description);
+        yield `  ${camel(prop.name)}${
+          isRequired(prop) ? '' : '?'
+        }: ${this.buildTypeName(prop)};`;
+      }
+      yield `}`;
+    } else {
+      yield `export type ${pascal(type.name)} = Record<string, unknown>;`;
     }
-    yield `}`;
   }
 
   private *buildDescription(
@@ -135,13 +139,16 @@ export class InterfaceFactory implements FileFactory {
 
   private buildTypeName(type: {
     typeName: string;
+    isUnknown: boolean;
     enumValues?: string[];
     isArray: boolean;
     isLocal: boolean;
   }): string {
     const arrayify = (n: string) => (type.isArray ? `${n}[]` : n);
 
-    if (type.isLocal) {
+    if (type.isUnknown) {
+      return arrayify('any');
+    } else if (type.isLocal) {
       return arrayify(pascal(type.typeName));
     }
 
@@ -160,7 +167,7 @@ export class InterfaceFactory implements FileFactory {
       case 'boolean':
         return arrayify('boolean');
       default:
-        return arrayify('>>>>>> UNKNOWN <<<<<<<');
+        return arrayify('any');
     }
   }
 }

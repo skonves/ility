@@ -35,9 +35,7 @@ export function validateCreateGizmoParams(
 ): ValidationError[] {
   const errors: ValidationError[] = [];
   if (typeof size !== 'undefined') {
-    for (const error of validateCreateGizmoSize(size)) {
-      errors.push(error);
-    }
+    errors.push(...validateCreateGizmoSize(size));
   }
   if (
     typeof size === 'string' &&
@@ -110,9 +108,7 @@ export function validateCreateWidgetParams(
 ): ValidationError[] {
   const errors: ValidationError[] = [];
   if (typeof body !== 'undefined') {
-    for (const error of validateCreateWidgetBody(body)) {
-      errors.push(error);
-    }
+    errors.push(...validateCreateWidgetBody(body));
   }
   return errors;
 }
@@ -283,9 +279,7 @@ export function validateWidget({
     });
   }
   if (typeof foo !== 'undefined') {
-    for (const error of validateWidgetFoo(foo)) {
-      errors.push(error);
-    }
+    errors.push(...validateWidgetFoo(foo));
   }
   return errors;
 }
@@ -365,9 +359,7 @@ export function validateNewWidget({
     });
   }
   if (typeof foo !== 'undefined') {
-    for (const error of validateNewWidgetFoo(foo)) {
-      errors.push(error);
-    }
+    errors.push(...validateNewWidgetFoo(foo));
   }
   return errors;
 }
@@ -387,11 +379,7 @@ export function validateGizmosResponse({
     });
   }
   if (typeof data !== 'undefined') {
-    for (const arrayItem of data) {
-      for (const error of validateGizmo(arrayItem)) {
-        errors.push(error);
-      }
-    }
+    data.forEach((arrayItem) => errors.push(...validateGizmo(arrayItem)));
   }
   return errors;
 }

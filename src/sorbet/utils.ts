@@ -45,7 +45,9 @@ export function buildTypeName(
   const arrayify = (n: string) =>
     type.isArray && !skipArrayify ? `T::Array[${n}]` : n;
 
-  if (type.isLocal) {
+  if (type.isUnknown) {
+    return arrayify('T.untyped');
+  } else if (type.isLocal) {
     return arrayify(`${moduleNamespace}::${pascal(type.typeName)}`);
   }
 
@@ -59,7 +61,7 @@ export function buildTypeName(
     case 'boolean':
       return arrayify('T::Boolean');
     default:
-      return arrayify('>>>>>> UNKNOWN <<<<<<<');
+      return arrayify('T.untyped');
   }
 }
 
