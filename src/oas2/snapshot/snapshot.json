@@ -11,6 +11,7 @@
             {
               "name": "search",
               "typeName": "string",
+              "isUnknown": false,
               "isLocal": false,
               "isArray": false,
               "rules": []
@@ -19,6 +20,7 @@
           "description": "Only has a summary",
           "returnType": {
             "typeName": "gizmosResponse",
+            "isUnknown": false,
             "isLocal": true,
             "isArray": false,
             "rules": []
@@ -31,6 +33,7 @@
               "name": "size",
               "description": "Anonymous enum",
               "typeName": "createGizmoSize",
+              "isUnknown": false,
               "isLocal": true,
               "isArray": false,
               "rules": [
@@ -47,6 +50,7 @@
           ],
           "returnType": {
             "typeName": "gizmo",
+            "isUnknown": false,
             "isLocal": true,
             "isArray": false,
             "rules": []
@@ -59,6 +63,7 @@
               "name": "factors",
               "description": "array of primitive",
               "typeName": "string",
+              "isUnknown": false,
               "isLocal": false,
               "isArray": true,
               "rules": [
@@ -70,6 +75,7 @@
           ],
           "returnType": {
             "typeName": "gizmo",
+            "isUnknown": false,
             "isLocal": true,
             "isArray": false,
             "rules": []
@@ -85,6 +91,7 @@
           "parameters": [],
           "returnType": {
             "typeName": "widget",
+            "isUnknown": false,
             "isLocal": true,
             "isArray": false,
             "rules": []
@@ -97,6 +104,7 @@
               "name": "body",
               "description": "The new widget",
               "typeName": "createWidgetBody",
+              "isUnknown": false,
               "isLocal": true,
               "isArray": false,
               "rules": []
@@ -111,6 +119,7 @@
               "name": "id",
               "description": "The widget ID",
               "typeName": "string",
+              "isUnknown": false,
               "isLocal": false,
               "isArray": false,
               "rules": [
@@ -121,6 +130,7 @@
           ],
           "returnType": {
             "typeName": "widget",
+            "isUnknown": false,
             "isLocal": true,
             "isArray": false,
             "rules": []
@@ -133,6 +143,7 @@
               "name": "id",
               "description": "The widget ID",
               "typeName": "string",
+              "isUnknown": false,
               "isLocal": false,
               "isArray": false,
               "rules": [
@@ -152,6 +163,7 @@
         {
           "name": "id",
           "typeName": "string",
+          "isUnknown": false,
           "isArray": false,
           "isLocal": false,
           "rules": [{ "id": "string-max-length", "length": 30 }]
@@ -159,6 +171,7 @@
         {
           "name": "name",
           "typeName": "string",
+          "isUnknown": false,
           "isArray": false,
           "isLocal": false,
           "rules": []
@@ -172,6 +185,7 @@
         {
           "name": "id",
           "typeName": "string",
+          "isUnknown": false,
           "isArray": false,
           "isLocal": false,
           "rules": [
@@ -182,6 +196,7 @@
         {
           "name": "name",
           "typeName": "string",
+          "isUnknown": false,
           "isArray": false,
           "isLocal": false,
           "rules": [
@@ -192,6 +207,7 @@
         {
           "name": "fiz",
           "typeName": "number",
+          "isUnknown": false,
           "isArray": false,
           "isLocal": false,
           "rules": [{ "id": "number-multiple-of", "value": 3 }]
@@ -199,6 +215,7 @@
         {
           "name": "buzz",
           "typeName": "number",
+          "isUnknown": false,
           "isArray": false,
           "isLocal": false,
           "rules": [{ "id": "number-multiple-of", "value": 5 }]
@@ -206,6 +223,7 @@
         {
           "name": "fizbuzz",
           "typeName": "number",
+          "isUnknown": false,
           "isArray": false,
           "isLocal": false,
           "rules": [{ "id": "number-multiple-of", "value": 15 }]
@@ -213,6 +231,7 @@
         {
           "name": "foo",
           "typeName": "widgetFoo",
+          "isUnknown": false,
           "isArray": false,
           "isLocal": true,
           "rules": []
@@ -226,6 +245,7 @@
         {
           "name": "name",
           "typeName": "string",
+          "isUnknown": false,
           "isArray": false,
           "isLocal": false,
           "rules": [
@@ -236,6 +256,7 @@
         {
           "name": "fiz",
           "typeName": "number",
+          "isUnknown": false,
           "isArray": false,
           "isLocal": false,
           "rules": [{ "id": "number-multiple-of", "value": 3 }]
@@ -243,6 +264,7 @@
         {
           "name": "buzz",
           "typeName": "number",
+          "isUnknown": false,
           "isArray": false,
           "isLocal": false,
           "rules": [{ "id": "number-multiple-of", "value": 5 }]
@@ -250,6 +272,7 @@
         {
           "name": "fizbuzz",
           "typeName": "number",
+          "isUnknown": false,
           "isArray": false,
           "isLocal": false,
           "rules": [{ "id": "number-multiple-of", "value": 15 }]
@@ -257,6 +280,7 @@
         {
           "name": "foo",
           "typeName": "newWidgetFoo",
+          "isUnknown": false,
           "isArray": false,
           "isLocal": true,
           "rules": []
@@ -270,6 +294,7 @@
         {
           "name": "data",
           "typeName": "gizmo",
+          "isUnknown": false,
           "isArray": true,
           "isLocal": true,
           "rules": [{ "id": "required" }]
@@ -283,6 +308,7 @@
         {
           "name": "name",
           "typeName": "string",
+          "isUnknown": false,
           "isArray": false,
           "isLocal": false,
           "rules": [{ "id": "required" }]
@@ -296,6 +322,7 @@
         {
           "name": "fiz",
           "typeName": "number",
+          "isUnknown": false,
           "isArray": false,
           "isLocal": false,
           "rules": []
@@ -303,6 +330,7 @@
         {
           "name": "buzz",
           "typeName": "number",
+          "isUnknown": false,
           "isArray": false,
           "isLocal": false,
           "rules": [{ "id": "required" }]
@@ -316,6 +344,7 @@
         {
           "name": "fiz",
           "typeName": "number",
+          "isUnknown": false,
           "isArray": false,
           "isLocal": false,
           "rules": []
@@ -323,6 +352,7 @@
         {
           "name": "buzz",
           "typeName": "number",
+          "isUnknown": false,
           "isArray": false,
           "isLocal": false,
           "rules": [{ "id": "required" }]

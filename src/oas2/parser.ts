@@ -117,6 +117,7 @@ export class OAS2Parser implements Parser {
       name: param.name,
       description: this.parseDescription(undefined, param.description),
       typeName,
+      isUnknown: false,
       isLocal,
       isArray,
       rules: this.parseRules(this.resolve(resolved), param.required),
@@ -129,6 +130,7 @@ export class OAS2Parser implements Parser {
     parentName: string,
   ): {
     typeName: string;
+    isUnknown: boolean;
     enumValues?: string[];
     isLocal: boolean;
     isArray: boolean;
@@ -142,6 +144,7 @@ export class OAS2Parser implements Parser {
         if (res.type === 'object') {
           return {
             typeName: def.$ref.substr(14),
+            isUnknown: false,
             isLocal: true,
             isArray: false,
             rules: this.parseRules(res),
@@ -149,6 +152,7 @@ export class OAS2Parser implements Parser {
         } else {
           return {
             typeName: res.type,
+            isUnknown: false,
             isLocal: false,
             isArray: false,
             rules: this.parseRules(res),
@@ -157,6 +161,7 @@ export class OAS2Parser implements Parser {
       } else {
         return {
           typeName: def.$ref,
+          isUnknown: false,
           isLocal: true,
           isArray: false,
           rules: this.parseRules(res),
@@ -175,6 +180,7 @@ export class OAS2Parser implements Parser {
           });
           return {
             typeName: enumName,
+            isUnknown: false,
             isLocal: true,
             isArray: false,
             rules,
@@ -182,6 +188,7 @@ export class OAS2Parser implements Parser {
         } else {
           return {
             typeName: def.type,
+            isUnknown: false,
             isLocal: false,
             isArray: false,
             rules,
@@ -193,6 +200,7 @@ export class OAS2Parser implements Parser {
       case 'null':
         return {
           typeName: def.type,
+          isUnknown: false,
           isLocal: false,
           isArray: false,
           rules,
@@ -201,6 +209,7 @@ export class OAS2Parser implements Parser {
         const items = this.parseType(def.items, localName, parentName);
         return {
           typeName: items.typeName,
+          isUnknown: false,
           isLocal: items.isLocal,
           isArray: true,
           rules,
@@ -216,14 +225,16 @@ export class OAS2Parser implements Parser {
 
         return {
           typeName,
+          isUnknown: false,
           isLocal: true,
           isArray: false,
           rules,
         };
       default:
         return {
-          typeName: '>>>>>>>>>>>>>>>>> unknown <<<<<<<<<<<<<<<<<<<',
-          isLocal: true,
+          typeName: 'unkonwn',
+          isUnknown: true,
+          isLocal: false,
           isArray: false,
           rules,
         };
@@ -299,7 +310,7 @@ export class OAS2Parser implements Parser {
 
         const resolvedProp = this.resolve(prop);
 
-        const { typeName, isArray, isLocal } = this.parseType(
+        const { typeName, isUnknown, isArray, isLocal } = this.parseType(
           prop,
           name,
           parentName || '',
@@ -308,6 +319,7 @@ export class OAS2Parser implements Parser {
           name,
           description: resolvedProp.description,
           typeName,
+          isUnknown,
           isArray,
           isLocal,
           rules: this.parseRules(resolvedProp, required.has(name)),

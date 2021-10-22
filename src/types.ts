@@ -22,6 +22,7 @@ export type Property = {
   name: string;
   description?: string | string[];
   typeName: string;
+  isUnknown: boolean;
   isArray: boolean;
   isLocal: boolean;
   rules: ValidationRule[];
@@ -44,6 +45,7 @@ export type Parameter = {
   name: string;
   description?: string | string[];
   typeName: string;
+  isUnknown: boolean;
   isArray: boolean;
   isLocal: boolean;
   rules: ValidationRule[];
@@ -51,6 +53,7 @@ export type Parameter = {
 
 export type ReturnType = {
   typeName: string;
+  isUnknown: boolean;
   isArray: boolean;
   isLocal: boolean;
   rules: ValidationRule[];
