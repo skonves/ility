@@ -10,6 +10,7 @@ import {
   ValidationRule,
   ReturnType,
   Type,
+  Enum,
 } from '../types';
 import {
   buildMethodParams,
@@ -90,6 +91,11 @@ export class ValidatorFactory implements FileFactory {
       if (!type.properties.length) continue;
       yield '';
       yield* this.buildTypeValidator(type, service, 1);
+    }
+
+    for (const e of service.enums) {
+      yield '';
+      yield* this.buildEnumValidator(e, service, 1);
     }
 
     yield 'end';
@@ -181,6 +187,29 @@ export class ValidatorFactory implements FileFactory {
     yield `${prefix(indent + 1)}errors`;
     yield `${prefix(indent)}end`;
   }
+
+  private *buildEnumValidator(
+    e: Enum,
+    service: Service,
+    indent: number,
+  ): Iterable<string> {
+    const errorType = `${buildModuleNamespace(service)}::ValidationError`;
+
+    const params = `${snake(e.name)}: ${buildModuleNamespace(
+      service,
+    )}::${pascal(e.name)}`;
+
+    yield `${prefix(indent)}sig do`;
+    yield `${prefix(indent + 1)}params(${params}).`;
+    yield `${prefix(indent + 2)}returns(T::Array[${errorType}])`;
+    yield `${prefix(indent)}end`;
+
+    yield `${prefix(indent)}def ${snake(`validate_${snake(e.name)}`)}(${snake(
+      e.name,
+    )})`;
+    yield `${prefix(indent + 1)}[]`;
+    yield `${prefix(indent)}end`;
+  }
 }
 
 function* buildSignature(
@@ -216,10 +245,6 @@ function buildValidatorName(
   moduleNamespace: string,
 ): string {
   const x = buildTypeName(type, moduleNamespace, true).split('::');
-
-  // x[x.length - 1] = `validate_${snake(x[x.length - 1])}`;
-
-  // return x.join('::');
 
   return `validate_${snake(x[x.length - 1])}`;
 }
@@ -268,7 +293,10 @@ const buildRequiredClause: RulelessGuardClauseFactory = function* (
 ) {
   if (isRequired(param)) {
     yield '';
-    yield `${prefix(indent)}if ${buildName(typeName, param.name)}.nil?`;
+    yield `${prefix(indent)}if T.unsafe(${buildName(
+      typeName,
+      param.name,
+    )}).nil?`;
     yield* buildError(
       'required',
       `"${buildName(typeName, param.name)}" is required`,
@@ -443,7 +471,7 @@ export const buildStringPatternClause: GuardClauseFactory = function* (
   if (rule.id === 'string-pattern') {
     const conditions = buildConditions(typeName, param, (name: string) => [
       `${buildName(typeName, name)}.is_a?(String)`,
-      `/${rule.pattern}/.match? ${buildName(typeName, name)}`,
+      `/${rule.pattern}/.match?(${buildName(typeName, name)})`,
     ]);
 
     yield '';
@@ -632,10 +660,10 @@ export const buildArrayMaxItemsClause: GuardClauseFactory = function* (
   typeName,
 ) {
   if (rule.id === 'array-max-items') {
-    const conditions = buildConditions(typeName, param, (name: string) => [
-      `${buildName(typeName, name)}.is_an?(Array)`,
-      `${buildName(typeName, name)}.length > ${rule.max}`,
-    ]);
+    const conditions = [
+      `${buildName(typeName, param.name)}.is_a?(Array)`,
+      `${buildName(typeName, param.name)}.length > ${rule.max}`,
+    ];
 
     yield '';
     yield `${prefix(indent)}if ${conditions.join(' && ')}`;
@@ -660,10 +688,10 @@ export const buildArrayMinItemsClause: GuardClauseFactory = function* (
   typeName,
 ) {
   if (rule.id === 'array-min-items') {
-    const conditions = buildConditions(typeName, param, (name: string) => [
-      `${buildName(typeName, name)}.is_an?(Array)`,
-      `${buildName(typeName, name)}.length < ${rule.min}`,
-    ]);
+    const conditions = [
+      `${buildName(typeName, param.name)}.is_a?(Array)`,
+      `${buildName(typeName, param.name)}.length < ${rule.min}`,
+    ];
 
     yield '';
     yield `${prefix(indent)}if ${conditions.join(' && ')}`;
@@ -689,7 +717,7 @@ export const buildArrayUniqueItemsClause: GuardClauseFactory = function* (
 ) {
   if (rule.id === 'array-unique-items') {
     const conditions = buildConditions(typeName, param, (name: string) => [
-      `${buildName(typeName, name)}.is_an?(Array)`,
+      `${buildName(typeName, name)}.is_a?(Array)`,
       `${buildName(typeName, name)}.length != ${buildName(
         typeName,
         name,

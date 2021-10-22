@@ -58,7 +58,7 @@ module IlityExample::V1::Validators
       )
     end
 
-    if factors.is_a?(Array) && !factors.any? { |x| x.is_an?(Array) && x.length > 6 }
+    if factors.is_a?(Array) && factors.length > 6
       errors << IlityExample::V1::ValidationError.new(
         code: 'ARRAY_MAX_ITEMS',
         title: '"factors" max length is 6',
@@ -66,7 +66,7 @@ module IlityExample::V1::Validators
       )
     end
 
-    if factors.is_a?(Array) && !factors.any? { |x| x.is_an?(Array) && x.length < 2 }
+    if factors.is_a?(Array) && factors.length < 2
       errors << IlityExample::V1::ValidationError.new(
         code: 'ARRAY_MIN_ITEMS',
         title: '"factors" min length is 2',
@@ -74,7 +74,7 @@ module IlityExample::V1::Validators
       )
     end
 
-    if factors.is_a?(Array) && !factors.any? { |x| x.is_a?(String) && /[0-9a-fA-F]+/.match? x }
+    if factors.is_a?(Array) && !factors.any? { |x| x.is_a?(String) && /[0-9a-fA-F]+/.match?(x) }
       errors << IlityExample::V1::ValidationError.new(
         code: 'STRING_PATTERN',
         title: '"factors" must match the pattern /[0-9a-fA-F]+/',
@@ -106,7 +106,7 @@ module IlityExample::V1::Validators
   def validate_get_widget_foo_params(id:)
     errors = T.let([], T::Array[IlityExample::V1::ValidationError])
 
-    if id.nil?
+    if T.unsafe(id).nil?
       errors << IlityExample::V1::ValidationError.new(
         code: 'REQUIRED',
         title: '"id" is required',
@@ -140,7 +140,7 @@ module IlityExample::V1::Validators
   def validate_delete_widget_foo_params(id:)
     errors = T.let([], T::Array[IlityExample::V1::ValidationError])
 
-    if id.nil?
+    if T.unsafe(id).nil?
       errors << IlityExample::V1::ValidationError.new(
         code: 'REQUIRED',
         title: '"id" is required',
@@ -208,7 +208,7 @@ module IlityExample::V1::Validators
   def validate_widget(widget)
     errors = T.let([], T::Array[IlityExample::V1::ValidationError])
 
-    if widget.id.nil?
+    if T.unsafe(widget.id).nil?
       errors << IlityExample::V1::ValidationError.new(
         code: 'REQUIRED',
         title: '"widget.id" is required',
@@ -248,7 +248,7 @@ module IlityExample::V1::Validators
       )
     end
 
-    if widget.name.is_a?(String) && /[0-9a-fA-F]+/.match? widget.name
+    if widget.name.is_a?(String) && /[0-9a-fA-F]+/.match?(widget.name)
       errors << IlityExample::V1::ValidationError.new(
         code: 'STRING_PATTERN',
         title: '"widget.name" must match the pattern /[0-9a-fA-F]+/',
@@ -334,7 +334,7 @@ module IlityExample::V1::Validators
       )
     end
 
-    if new_widget.name.is_a?(String) && /[0-9a-fA-F]+/.match? new_widget.name
+    if new_widget.name.is_a?(String) && /[0-9a-fA-F]+/.match?(new_widget.name)
       errors << IlityExample::V1::ValidationError.new(
         code: 'STRING_PATTERN',
         title: '"new_widget.name" must match the pattern /[0-9a-fA-F]+/',
@@ -404,7 +404,7 @@ module IlityExample::V1::Validators
   def validate_gizmos_response(gizmos_response)
     errors = T.let([], T::Array[IlityExample::V1::ValidationError])
 
-    if gizmos_response.data.nil?
+    if T.unsafe(gizmos_response.data).nil?
       errors << IlityExample::V1::ValidationError.new(
         code: 'REQUIRED',
         title: '"gizmos_response.data" is required',
@@ -426,7 +426,7 @@ module IlityExample::V1::Validators
   def validate_create_widget_body(create_widget_body)
     errors = T.let([], T::Array[IlityExample::V1::ValidationError])
 
-    if create_widget_body.name.nil?
+    if T.unsafe(create_widget_body.name).nil?
       errors << IlityExample::V1::ValidationError.new(
         code: 'REQUIRED',
         title: '"create_widget_body.name" is required',
@@ -460,7 +460,7 @@ module IlityExample::V1::Validators
       )
     end
 
-    if widget_foo.buzz.nil?
+    if T.unsafe(widget_foo.buzz).nil?
       errors << IlityExample::V1::ValidationError.new(
         code: 'REQUIRED',
         title: '"widget_foo.buzz" is required',
@@ -494,7 +494,7 @@ module IlityExample::V1::Validators
       )
     end
 
-    if new_widget_foo.buzz.nil?
+    if T.unsafe(new_widget_foo.buzz).nil?
       errors << IlityExample::V1::ValidationError.new(
         code: 'REQUIRED',
         title: '"new_widget_foo.buzz" is required',
@@ -511,5 +511,13 @@ module IlityExample::V1::Validators
     end
 
     errors
+  end
+
+  sig do
+    params(create_gizmo_size: IlityExample::V1::CreateGizmoSize).
+      returns(T::Array[IlityExample::V1::ValidationError])
+  end
+  def validate_create_gizmo_size(create_gizmo_size)
+    []
   end
 end
