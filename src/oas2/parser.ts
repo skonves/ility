@@ -8,9 +8,11 @@ import {
   Enum,
   Interface,
   Method,
+  MethodSpec,
   ObjectValidationRule,
   Parameter,
   Parser,
+  PathSpec,
   Property,
   ReturnType,
   Service,
@@ -47,7 +49,71 @@ export class OAS2Parser implements Parser {
       .map((name) => ({
         name: singular(name),
         methods: this.parseMethods(name),
+        protocols: {
+          http: this.parseHttpProtocol(name),
+        },
       }));
+  }
+
+  private parseHttpProtocol(interfaceName: string): PathSpec[] {
+    const paths = Object.keys(this.schema.paths).filter(
+      (path) => path.split('/')[1] === interfaceName,
+    );
+
+    const pathSpecs: PathSpec[] = [];
+
+    for (const path of paths) {
+      const commonParameters = this.schema.paths[path]['parameters'] || [];
+
+      const pathSpec: PathSpec = {
+        path,
+        methods: [],
+      };
+
+      for (const verb in this.schema.paths[path]) {
+        if (verb === 'parameters') continue;
+
+        const operation: OpenAPI.Operation = this.schema.paths[path][verb];
+
+        const methodSpec: MethodSpec = {
+          name: operation.operationId || 'unknown',
+          verb,
+          parameters: [],
+        };
+
+        for (const param of [
+          ...(operation.parameters || []),
+          ...commonParameters,
+        ]) {
+          const name = this.parseParameterName(param);
+
+          const resolved = this.resolve(param);
+
+          if (
+            (resolved.in === 'header' ||
+              resolved.in === 'path' ||
+              resolved.in === 'query') &&
+            resolved.type === 'array'
+          ) {
+            methodSpec.parameters.push({
+              name,
+              in: this.parseParameterLocation(param),
+              array: resolved.collectionFormat || 'csv',
+            });
+          } else {
+            methodSpec.parameters.push({
+              name,
+              in: this.parseParameterLocation(param),
+            });
+          }
+        }
+
+        pathSpec.methods.push(methodSpec);
+      }
+
+      pathSpecs.push(pathSpec);
+    }
+    return pathSpecs;
   }
 
   private parseMethods(interfaceName: string): Method[] {
@@ -122,6 +188,18 @@ export class OAS2Parser implements Parser {
       isArray,
       rules: this.parseRules(this.resolve(resolved), param.required),
     };
+  }
+
+  private parseParameterLocation(
+    def: OpenAPI.Parameter | OpenAPI.Reference,
+  ): OpenAPI.Parameter['in'] {
+    return this.resolve(def).in;
+  }
+
+  private parseParameterName(
+    def: OpenAPI.Parameter | OpenAPI.Reference,
+  ): OpenAPI.Parameter['name'] {
+    return this.resolve(def).name;
   }
 
   private parseType(
