@@ -81,7 +81,33 @@
             "rules": []
           }
         }
-      ]
+      ],
+      "protocols": {
+        "http": [
+          {
+            "path": "/gizmos",
+            "methods": [
+              {
+                "name": "getGizmos",
+                "verb": "get",
+                "parameters": [{ "name": "search", "in": "query" }]
+              },
+              {
+                "name": "createGizmo",
+                "verb": "post",
+                "parameters": [{ "name": "size", "in": "query" }]
+              },
+              {
+                "name": "updateGizmo",
+                "verb": "put",
+                "parameters": [
+                  { "name": "factors", "in": "query", "array": "csv" }
+                ]
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "name": "widget",
@@ -153,7 +179,38 @@
             }
           ]
         }
-      ]
+      ],
+      "protocols": {
+        "http": [
+          {
+            "path": "/widgets",
+            "methods": [
+              { "name": "getWidgets", "verb": "get", "parameters": [] },
+              {
+                "name": "createWidget",
+                "verb": "post",
+                "parameters": [{ "name": "body", "in": "body" }]
+              },
+              { "name": "putWidget", "verb": "put", "parameters": [] }
+            ]
+          },
+          {
+            "path": "/widgets/{id}/foo",
+            "methods": [
+              {
+                "name": "getWidgetFoo",
+                "verb": "get",
+                "parameters": [{ "name": "id", "in": "path" }]
+              },
+              {
+                "name": "deleteWidgetFoo",
+                "verb": "delete",
+                "parameters": [{ "name": "id", "in": "path" }]
+              }
+            ]
+          }
+        ]
+      }
     }
   ],
   "types": [

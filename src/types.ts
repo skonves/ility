@@ -32,6 +32,26 @@ export type Interface = {
   name: string;
   description?: string | string[];
   methods: Method[];
+  protocols: {
+    http: PathSpec[];
+  };
+};
+
+export type PathSpec = {
+  path: string;
+  methods: MethodSpec[];
+};
+
+export type MethodSpec = {
+  name: string;
+  verb: string;
+  parameters: ParameterSpec[];
+};
+
+export type ParameterSpec = {
+  name: string;
+  in: 'header' | 'query' | 'path' | 'formData' | 'body';
+  array?: 'csv' | 'ssv' | 'tsv' | 'pipes' | 'multi';
 };
 
 export type Method = {
