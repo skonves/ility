@@ -54,6 +54,31 @@ export class OAS2Parser implements Parser {
         },
       }));
   }
+  private parseResponseCode(
+    verb: Exclude<keyof OpenAPI.PathItem, 'parameters'>,
+    operation: OpenAPI.Operation,
+  ): number {
+    const primary = this.parsePrimaryResponseKey(operation);
+
+    if (typeof primary === 'number') {
+      return primary;
+    } else if (primary === 'default') {
+      if (!!this.resolve(operation.responses[primary]).schema) {
+        switch (verb) {
+          case 'delete':
+            return 202;
+          case 'options':
+            return 204;
+          case 'post':
+            return 201;
+        }
+      } else {
+        return 204;
+      }
+    }
+
+    return 200;
+  }
 
   private parseHttpProtocol(interfaceName: string): PathSpec[] {
     const paths = Object.keys(this.schema.paths).filter(
@@ -63,6 +88,7 @@ export class OAS2Parser implements Parser {
     const pathSpecs: PathSpec[] = [];
 
     for (const path of paths) {
+      const pathItem = this.resolve(this.schema.paths[path]);
       const commonParameters = this.schema.paths[path]['parameters'] || [];
 
       const pathSpec: PathSpec = {
@@ -70,15 +96,16 @@ export class OAS2Parser implements Parser {
         methods: [],
       };
 
-      for (const verb in this.schema.paths[path]) {
+      for (const verb of keysOf(pathItem)) {
         if (verb === 'parameters') continue;
 
-        const operation: OpenAPI.Operation = this.schema.paths[path][verb];
+        const operation = pathItem[verb]!;
 
         const methodSpec: MethodSpec = {
           name: operation.operationId || 'unknown',
           verb,
           parameters: [],
+          successCode: this.parseResponseCode(verb, operation),
         };
 
         for (const param of [
@@ -319,15 +346,28 @@ export class OAS2Parser implements Parser {
     }
   }
 
+  private parsePrimaryResponseKey(
+    operation: OpenAPI.Operation,
+  ): number | 'default' | undefined {
+    const hasDefault = typeof operation.responses.default !== 'undefined';
+    const code = Object.keys(operation.responses).filter((c) =>
+      c.startsWith('2'),
+    )[0];
+
+    if (code === 'default') return 'default';
+
+    const n = Number(code);
+
+    if (!Number.isNaN(n)) return n;
+    if (hasDefault) return 'default';
+    return;
+  }
+
   private parseReturnType(
     operation: OpenAPI.Operation,
   ): ReturnType | undefined {
-    const responseCodes = Object.keys(operation.responses).filter((c) =>
-      c.startsWith('2'),
-    );
-
-    const success =
-      operation.responses[responseCodes[0]] || operation.responses.default;
+    const primaryCode = this.parsePrimaryResponseKey(operation);
+    const success = operation.responses[`${primaryCode}`];
     if (!success) return;
 
     const response = this.resolve(success);
