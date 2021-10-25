@@ -46,6 +46,7 @@ export type MethodSpec = {
   name: string;
   verb: string;
   parameters: ParameterSpec[];
+  successCode: number;
 };
 
 export type ParameterSpec = {
