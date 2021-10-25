@@ -8,7 +8,7 @@ export namespace OpenAPI {
     schemes?: ['http' | 'https' | 'ws' | 'wss'];
     consumes?: string[];
     produces?: string[];
-    paths: Record<string, PathItem>;
+    paths: Record<string, PathItem | Reference>;
     definitions?: Definitions;
     parameters?: ParameterDefinitions;
     responses?: ResponseDefinitions;
@@ -28,7 +28,6 @@ export namespace OpenAPI {
   };
 
   export type PathItem = {
-    $ref?: string;
     get?: Operation;
     put?: Operation;
     post?: Operation;
