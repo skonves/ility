@@ -691,3 +691,7 @@ function isReference<T>(
 function isBodyParameter(obj: any): obj is OpenAPI.BodyParameter {
   return typeof obj['in'] === 'string' && obj.in === 'body';
 }
+
+function keysOf<T extends object>(obj: T): (keyof T)[] {
+  return Object.keys(obj) as any;
+}

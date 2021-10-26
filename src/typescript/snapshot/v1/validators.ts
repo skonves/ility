@@ -164,6 +164,456 @@ export function validateDeleteWidgetFooParams(id: string): ValidationError[] {
   return errors;
 }
 
+/**
+ * Validates input parameters for the exhaustiveParams() method.
+ * @param pathString
+ * @param pathEnum
+ * @param pathNumber
+ * @param pathInteger
+ * @param pathBoolean
+ * @param pathStringArray
+ * @param pathEnumArray
+ * @param pathNumberArray
+ * @param pathIntegerArray
+ * @param pathBooleanArray
+ * @param queryString
+ * @param queryEnum
+ * @param queryNumber
+ * @param queryInteger
+ * @param queryBoolean
+ * @param queryStringArray
+ * @param queryEnumArray
+ * @param queryNumberArray
+ * @param queryIntegerArray
+ * @param queryBooleanArray
+ * @param headerString
+ * @param headerEnum
+ * @param headerNumber
+ * @param headerInteger
+ * @param headerBoolean
+ * @param headerStringArray
+ * @param headerEnumArray
+ * @param headerNumberArray
+ * @param headerIntegerArray
+ * @param headerBooleanArray
+ * @param body
+ */
+export function validateExhaustiveParamsParams(
+  pathString: string,
+  pathEnum: types.ExhaustiveParamsPathEnum,
+  pathNumber: number,
+  pathInteger: number,
+  pathBoolean: boolean,
+  pathStringArray: string[],
+  pathEnumArray: types.ExhaustiveParamsPathEnumArray[],
+  pathNumberArray: number[],
+  pathIntegerArray: number[],
+  pathBooleanArray: boolean[],
+  queryString?: string,
+  queryEnum?: types.ExhaustiveParamsQueryEnum,
+  queryNumber?: number,
+  queryInteger?: number,
+  queryBoolean?: boolean,
+  queryStringArray?: string[],
+  queryEnumArray?: types.ExhaustiveParamsQueryEnumArray[],
+  queryNumberArray?: number[],
+  queryIntegerArray?: number[],
+  queryBooleanArray?: boolean[],
+  headerString?: string,
+  headerEnum?: types.ExhaustiveParamsHeaderEnum,
+  headerNumber?: number,
+  headerInteger?: number,
+  headerBoolean?: boolean,
+  headerStringArray?: string[],
+  headerEnumArray?: types.ExhaustiveParamsHeaderEnumArray[],
+  headerNumberArray?: number[],
+  headerIntegerArray?: number[],
+  headerBooleanArray?: boolean[],
+  body?: types.ExhaustiveParamsBody,
+): ValidationError[] {
+  const errors: ValidationError[] = [];
+  if (typeof queryString !== 'undefined' && typeof queryString !== 'string') {
+    errors.push({
+      code: 'TYPE',
+      title: '"queryString" must be a string if supplied',
+      path: 'queryString',
+    });
+  }
+  if (typeof queryEnum !== 'undefined') {
+    errors.push(...validateExhaustiveParamsQueryEnum(queryEnum));
+  }
+  if (
+    typeof queryEnum === 'string' &&
+    !['one', 'two', 'three'].includes(queryEnum)
+  ) {
+    errors.push({
+      code: 'STRING_ENUM',
+      title: '"queryEnum" must be one of ["one", "two", "three"]',
+      path: 'queryEnum',
+    });
+  }
+  if (typeof queryNumber !== 'undefined' && typeof queryNumber !== 'number') {
+    errors.push({
+      code: 'TYPE',
+      title: '"queryNumber" must be a number if supplied',
+      path: 'queryNumber',
+    });
+  }
+  if (typeof queryInteger !== 'undefined' && typeof queryInteger !== 'number') {
+    errors.push({
+      code: 'TYPE',
+      title: '"queryInteger" must be a number if supplied',
+      path: 'queryInteger',
+    });
+  }
+  if (
+    typeof queryBoolean !== 'undefined' &&
+    typeof queryBoolean !== 'boolean'
+  ) {
+    errors.push({
+      code: 'TYPE',
+      title: '"queryBoolean" must be a boolean if supplied',
+      path: 'queryBoolean',
+    });
+  }
+  if (
+    Array.isArray(queryStringArray) &&
+    queryStringArray.some((x) => typeof x !== 'string')
+  ) {
+    errors.push({
+      code: 'TYPE',
+      title: 'Each item in "queryStringArray" must be a string if supplied',
+      path: 'queryStringArray',
+    });
+  }
+  if (typeof queryEnumArray !== 'undefined') {
+    queryEnumArray.forEach((arrayItem) =>
+      errors.push(...validateExhaustiveParamsQueryEnumArray(arrayItem)),
+    );
+  }
+  if (
+    Array.isArray(queryEnumArray) &&
+    !queryEnumArray.some(
+      (x) => typeof x === 'string' && !['one', 'two', 'three'].includes(x),
+    )
+  ) {
+    errors.push({
+      code: 'STRING_ENUM',
+      title:
+        'Each item in "queryEnumArray" must be one of ["one", "two", "three"]',
+      path: 'queryEnumArray',
+    });
+  }
+  if (
+    Array.isArray(queryNumberArray) &&
+    queryNumberArray.some((x) => typeof x !== 'number')
+  ) {
+    errors.push({
+      code: 'TYPE',
+      title: 'Each item in "queryNumberArray" must be a number if supplied',
+      path: 'queryNumberArray',
+    });
+  }
+  if (
+    Array.isArray(queryIntegerArray) &&
+    queryIntegerArray.some((x) => typeof x !== 'number')
+  ) {
+    errors.push({
+      code: 'TYPE',
+      title: 'Each item in "queryIntegerArray" must be a number if supplied',
+      path: 'queryIntegerArray',
+    });
+  }
+  if (
+    Array.isArray(queryBooleanArray) &&
+    queryBooleanArray.some((x) => typeof x !== 'boolean')
+  ) {
+    errors.push({
+      code: 'TYPE',
+      title: 'Each item in "queryBooleanArray" must be a boolean if supplied',
+      path: 'queryBooleanArray',
+    });
+  }
+  if (typeof pathString === 'undefined') {
+    errors.push({
+      code: 'REQUIRED',
+      title: '"pathString" is required',
+      path: 'pathString',
+    });
+  }
+  if (typeof pathString !== 'undefined' && typeof pathString !== 'string') {
+    errors.push({
+      code: 'TYPE',
+      title: '"pathString" must be a string',
+      path: 'pathString',
+    });
+  }
+  if (typeof pathEnum === 'undefined') {
+    errors.push({
+      code: 'REQUIRED',
+      title: '"pathEnum" is required',
+      path: 'pathEnum',
+    });
+  }
+  if (typeof pathEnum !== 'undefined') {
+    errors.push(...validateExhaustiveParamsPathEnum(pathEnum));
+  }
+  if (
+    typeof pathEnum === 'string' &&
+    !['one', 'two', 'three'].includes(pathEnum)
+  ) {
+    errors.push({
+      code: 'STRING_ENUM',
+      title: '"pathEnum" must be one of ["one", "two", "three"]',
+      path: 'pathEnum',
+    });
+  }
+  if (typeof pathNumber === 'undefined') {
+    errors.push({
+      code: 'REQUIRED',
+      title: '"pathNumber" is required',
+      path: 'pathNumber',
+    });
+  }
+  if (typeof pathNumber !== 'undefined' && typeof pathNumber !== 'number') {
+    errors.push({
+      code: 'TYPE',
+      title: '"pathNumber" must be a number',
+      path: 'pathNumber',
+    });
+  }
+  if (typeof pathInteger === 'undefined') {
+    errors.push({
+      code: 'REQUIRED',
+      title: '"pathInteger" is required',
+      path: 'pathInteger',
+    });
+  }
+  if (typeof pathInteger !== 'undefined' && typeof pathInteger !== 'number') {
+    errors.push({
+      code: 'TYPE',
+      title: '"pathInteger" must be a number',
+      path: 'pathInteger',
+    });
+  }
+  if (typeof pathBoolean === 'undefined') {
+    errors.push({
+      code: 'REQUIRED',
+      title: '"pathBoolean" is required',
+      path: 'pathBoolean',
+    });
+  }
+  if (typeof pathBoolean !== 'undefined' && typeof pathBoolean !== 'boolean') {
+    errors.push({
+      code: 'TYPE',
+      title: '"pathBoolean" must be a boolean',
+      path: 'pathBoolean',
+    });
+  }
+  if (typeof pathStringArray === 'undefined') {
+    errors.push({
+      code: 'REQUIRED',
+      title: '"pathStringArray" is required',
+      path: 'pathStringArray',
+    });
+  }
+  if (
+    Array.isArray(pathStringArray) &&
+    pathStringArray.some((x) => typeof x !== 'string')
+  ) {
+    errors.push({
+      code: 'TYPE',
+      title: 'Each item in "pathStringArray" must be a string',
+      path: 'pathStringArray',
+    });
+  }
+  if (typeof pathEnumArray === 'undefined') {
+    errors.push({
+      code: 'REQUIRED',
+      title: '"pathEnumArray" is required',
+      path: 'pathEnumArray',
+    });
+  }
+  if (typeof pathEnumArray !== 'undefined') {
+    pathEnumArray.forEach((arrayItem) =>
+      errors.push(...validateExhaustiveParamsPathEnumArray(arrayItem)),
+    );
+  }
+  if (
+    Array.isArray(pathEnumArray) &&
+    !pathEnumArray.some(
+      (x) => typeof x === 'string' && !['one', 'two', 'three'].includes(x),
+    )
+  ) {
+    errors.push({
+      code: 'STRING_ENUM',
+      title:
+        'Each item in "pathEnumArray" must be one of ["one", "two", "three"]',
+      path: 'pathEnumArray',
+    });
+  }
+  if (typeof pathNumberArray === 'undefined') {
+    errors.push({
+      code: 'REQUIRED',
+      title: '"pathNumberArray" is required',
+      path: 'pathNumberArray',
+    });
+  }
+  if (
+    Array.isArray(pathNumberArray) &&
+    pathNumberArray.some((x) => typeof x !== 'number')
+  ) {
+    errors.push({
+      code: 'TYPE',
+      title: 'Each item in "pathNumberArray" must be a number',
+      path: 'pathNumberArray',
+    });
+  }
+  if (typeof pathIntegerArray === 'undefined') {
+    errors.push({
+      code: 'REQUIRED',
+      title: '"pathIntegerArray" is required',
+      path: 'pathIntegerArray',
+    });
+  }
+  if (
+    Array.isArray(pathIntegerArray) &&
+    pathIntegerArray.some((x) => typeof x !== 'number')
+  ) {
+    errors.push({
+      code: 'TYPE',
+      title: 'Each item in "pathIntegerArray" must be a number',
+      path: 'pathIntegerArray',
+    });
+  }
+  if (typeof pathBooleanArray === 'undefined') {
+    errors.push({
+      code: 'REQUIRED',
+      title: '"pathBooleanArray" is required',
+      path: 'pathBooleanArray',
+    });
+  }
+  if (
+    Array.isArray(pathBooleanArray) &&
+    pathBooleanArray.some((x) => typeof x !== 'boolean')
+  ) {
+    errors.push({
+      code: 'TYPE',
+      title: 'Each item in "pathBooleanArray" must be a boolean',
+      path: 'pathBooleanArray',
+    });
+  }
+  if (typeof headerString !== 'undefined' && typeof headerString !== 'string') {
+    errors.push({
+      code: 'TYPE',
+      title: '"headerString" must be a string if supplied',
+      path: 'headerString',
+    });
+  }
+  if (typeof headerEnum !== 'undefined') {
+    errors.push(...validateExhaustiveParamsHeaderEnum(headerEnum));
+  }
+  if (
+    typeof headerEnum === 'string' &&
+    !['one', 'two', 'three'].includes(headerEnum)
+  ) {
+    errors.push({
+      code: 'STRING_ENUM',
+      title: '"headerEnum" must be one of ["one", "two", "three"]',
+      path: 'headerEnum',
+    });
+  }
+  if (typeof headerNumber !== 'undefined' && typeof headerNumber !== 'number') {
+    errors.push({
+      code: 'TYPE',
+      title: '"headerNumber" must be a number if supplied',
+      path: 'headerNumber',
+    });
+  }
+  if (
+    typeof headerInteger !== 'undefined' &&
+    typeof headerInteger !== 'number'
+  ) {
+    errors.push({
+      code: 'TYPE',
+      title: '"headerInteger" must be a number if supplied',
+      path: 'headerInteger',
+    });
+  }
+  if (
+    typeof headerBoolean !== 'undefined' &&
+    typeof headerBoolean !== 'boolean'
+  ) {
+    errors.push({
+      code: 'TYPE',
+      title: '"headerBoolean" must be a boolean if supplied',
+      path: 'headerBoolean',
+    });
+  }
+  if (
+    Array.isArray(headerStringArray) &&
+    headerStringArray.some((x) => typeof x !== 'string')
+  ) {
+    errors.push({
+      code: 'TYPE',
+      title: 'Each item in "headerStringArray" must be a string if supplied',
+      path: 'headerStringArray',
+    });
+  }
+  if (typeof headerEnumArray !== 'undefined') {
+    headerEnumArray.forEach((arrayItem) =>
+      errors.push(...validateExhaustiveParamsHeaderEnumArray(arrayItem)),
+    );
+  }
+  if (
+    Array.isArray(headerEnumArray) &&
+    !headerEnumArray.some(
+      (x) => typeof x === 'string' && !['one', 'two', 'three'].includes(x),
+    )
+  ) {
+    errors.push({
+      code: 'STRING_ENUM',
+      title:
+        'Each item in "headerEnumArray" must be one of ["one", "two", "three"]',
+      path: 'headerEnumArray',
+    });
+  }
+  if (
+    Array.isArray(headerNumberArray) &&
+    headerNumberArray.some((x) => typeof x !== 'number')
+  ) {
+    errors.push({
+      code: 'TYPE',
+      title: 'Each item in "headerNumberArray" must be a number if supplied',
+      path: 'headerNumberArray',
+    });
+  }
+  if (
+    Array.isArray(headerIntegerArray) &&
+    headerIntegerArray.some((x) => typeof x !== 'number')
+  ) {
+    errors.push({
+      code: 'TYPE',
+      title: 'Each item in "headerIntegerArray" must be a number if supplied',
+      path: 'headerIntegerArray',
+    });
+  }
+  if (
+    Array.isArray(headerBooleanArray) &&
+    headerBooleanArray.some((x) => typeof x !== 'boolean')
+  ) {
+    errors.push({
+      code: 'TYPE',
+      title: 'Each item in "headerBooleanArray" must be a boolean if supplied',
+      path: 'headerBooleanArray',
+    });
+  }
+  if (typeof body !== 'undefined') {
+    errors.push(...validateExhaustiveParamsBody(body));
+  }
+  return errors;
+}
+
 export function validateGizmo({ id, name }: types.Gizmo): ValidationError[] {
   const errors: ValidationError[] = [];
   if (typeof id !== 'undefined' && typeof id !== 'string') {
@@ -411,6 +861,35 @@ export function isCreateWidgetBody(obj: any): obj is types.CreateWidgetBody {
   return typeof obj !== 'undefined' && !validateCreateWidgetBody(obj).length;
 }
 
+export function validateExhaustiveParamsBody({
+  foo,
+  bar,
+}: types.ExhaustiveParamsBody): ValidationError[] {
+  const errors: ValidationError[] = [];
+  if (typeof foo !== 'undefined' && typeof foo !== 'string') {
+    errors.push({
+      code: 'TYPE',
+      title: '"foo" must be a string if supplied',
+      path: 'foo',
+    });
+  }
+  if (typeof bar !== 'undefined' && typeof bar !== 'string') {
+    errors.push({
+      code: 'TYPE',
+      title: '"bar" must be a string if supplied',
+      path: 'bar',
+    });
+  }
+  return errors;
+}
+export function isExhaustiveParamsBody(
+  obj: any,
+): obj is types.ExhaustiveParamsBody {
+  return (
+    typeof obj !== 'undefined' && !validateExhaustiveParamsBody(obj).length
+  );
+}
+
 export function validateWidgetFoo({
   fiz,
   buzz,
@@ -486,6 +965,108 @@ export function validateCreateGizmoSize(
     errors.push({
       code: 'STRING_ENUM',
       title: 'Value must be one of ["small", "medium", "big", "XL"]',
+      path: '',
+    });
+  }
+  return [];
+}
+
+export function validateExhaustiveParamsQueryEnum(
+  exhaustiveParamsQueryEnum: types.ExhaustiveParamsQueryEnum,
+): ValidationError[] {
+  const errors: ValidationError[] = [];
+  if (
+    typeof exhaustiveParamsQueryEnum === 'string' &&
+    !['one', 'two', 'three'].includes(exhaustiveParamsQueryEnum)
+  ) {
+    errors.push({
+      code: 'STRING_ENUM',
+      title: 'Value must be one of ["one", "two", "three"]',
+      path: '',
+    });
+  }
+  return [];
+}
+
+export function validateExhaustiveParamsQueryEnumArray(
+  exhaustiveParamsQueryEnumArray: types.ExhaustiveParamsQueryEnumArray,
+): ValidationError[] {
+  const errors: ValidationError[] = [];
+  if (
+    typeof exhaustiveParamsQueryEnumArray === 'string' &&
+    !['one', 'two', 'three'].includes(exhaustiveParamsQueryEnumArray)
+  ) {
+    errors.push({
+      code: 'STRING_ENUM',
+      title: 'Value must be one of ["one", "two", "three"]',
+      path: '',
+    });
+  }
+  return [];
+}
+
+export function validateExhaustiveParamsPathEnum(
+  exhaustiveParamsPathEnum: types.ExhaustiveParamsPathEnum,
+): ValidationError[] {
+  const errors: ValidationError[] = [];
+  if (
+    typeof exhaustiveParamsPathEnum === 'string' &&
+    !['one', 'two', 'three'].includes(exhaustiveParamsPathEnum)
+  ) {
+    errors.push({
+      code: 'STRING_ENUM',
+      title: 'Value must be one of ["one", "two", "three"]',
+      path: '',
+    });
+  }
+  return [];
+}
+
+export function validateExhaustiveParamsPathEnumArray(
+  exhaustiveParamsPathEnumArray: types.ExhaustiveParamsPathEnumArray,
+): ValidationError[] {
+  const errors: ValidationError[] = [];
+  if (
+    typeof exhaustiveParamsPathEnumArray === 'string' &&
+    !['one', 'two', 'three'].includes(exhaustiveParamsPathEnumArray)
+  ) {
+    errors.push({
+      code: 'STRING_ENUM',
+      title: 'Value must be one of ["one", "two", "three"]',
+      path: '',
+    });
+  }
+  return [];
+}
+
+export function validateExhaustiveParamsHeaderEnum(
+  exhaustiveParamsHeaderEnum: types.ExhaustiveParamsHeaderEnum,
+): ValidationError[] {
+  const errors: ValidationError[] = [];
+  if (
+    typeof exhaustiveParamsHeaderEnum === 'string' &&
+    !['one', 'two', 'three'].includes(exhaustiveParamsHeaderEnum)
+  ) {
+    errors.push({
+      code: 'STRING_ENUM',
+      title: 'Value must be one of ["one", "two", "three"]',
+      path: '',
+    });
+  }
+  return [];
+}
+
+export function validateExhaustiveParamsHeaderEnumArray(
+  exhaustiveParamsHeaderEnumArray: types.ExhaustiveParamsHeaderEnumArray,
+): ValidationError[] {
+  const errors: ValidationError[] = [];
+  if (
+    typeof exhaustiveParamsHeaderEnumArray === 'string' &&
+    !['one', 'two', 'three'].includes(exhaustiveParamsHeaderEnumArray)
+  ) {
+    errors.push({
+      code: 'STRING_ENUM',
+      title: 'Value must be one of ["one", "two", "three"]',
       path: '',
     });
   }

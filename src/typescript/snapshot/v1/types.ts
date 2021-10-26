@@ -47,7 +47,88 @@ export interface WidgetService {
   deleteWidgetFoo(id: string): Promise<void>;
 }
 
+export interface ExhaustiveService {
+  /**
+   * @param pathString
+   * @param pathEnum
+   * @param pathNumber
+   * @param pathInteger
+   * @param pathBoolean
+   * @param pathStringArray
+   * @param pathEnumArray
+   * @param pathNumberArray
+   * @param pathIntegerArray
+   * @param pathBooleanArray
+   * @param queryString
+   * @param queryEnum
+   * @param queryNumber
+   * @param queryInteger
+   * @param queryBoolean
+   * @param queryStringArray
+   * @param queryEnumArray
+   * @param queryNumberArray
+   * @param queryIntegerArray
+   * @param queryBooleanArray
+   * @param headerString
+   * @param headerEnum
+   * @param headerNumber
+   * @param headerInteger
+   * @param headerBoolean
+   * @param headerStringArray
+   * @param headerEnumArray
+   * @param headerNumberArray
+   * @param headerIntegerArray
+   * @param headerBooleanArray
+   * @param body
+   */
+  exhaustiveParams(
+    pathString: string,
+    pathEnum: ExhaustiveParamsPathEnum,
+    pathNumber: number,
+    pathInteger: number,
+    pathBoolean: boolean,
+    pathStringArray: string[],
+    pathEnumArray: ExhaustiveParamsPathEnumArray[],
+    pathNumberArray: number[],
+    pathIntegerArray: number[],
+    pathBooleanArray: boolean[],
+    queryString?: string,
+    queryEnum?: ExhaustiveParamsQueryEnum,
+    queryNumber?: number,
+    queryInteger?: number,
+    queryBoolean?: boolean,
+    queryStringArray?: string[],
+    queryEnumArray?: ExhaustiveParamsQueryEnumArray[],
+    queryNumberArray?: number[],
+    queryIntegerArray?: number[],
+    queryBooleanArray?: boolean[],
+    headerString?: string,
+    headerEnum?: ExhaustiveParamsHeaderEnum,
+    headerNumber?: number,
+    headerInteger?: number,
+    headerBoolean?: boolean,
+    headerStringArray?: string[],
+    headerEnumArray?: ExhaustiveParamsHeaderEnumArray[],
+    headerNumberArray?: number[],
+    headerIntegerArray?: number[],
+    headerBooleanArray?: boolean[],
+    body?: ExhaustiveParamsBody,
+  ): Promise<void>;
+}
+
 export type CreateGizmoSize = 'small' | 'medium' | 'big' | 'XL';
+
+export type ExhaustiveParamsQueryEnum = 'one' | 'two' | 'three';
+
+export type ExhaustiveParamsQueryEnumArray = 'one' | 'two' | 'three';
+
+export type ExhaustiveParamsPathEnum = 'one' | 'two' | 'three';
+
+export type ExhaustiveParamsPathEnumArray = 'one' | 'two' | 'three';
+
+export type ExhaustiveParamsHeaderEnum = 'one' | 'two' | 'three';
+
+export type ExhaustiveParamsHeaderEnumArray = 'one' | 'two' | 'three';
 
 export type Gizmo = {
   id?: string;
@@ -77,6 +158,11 @@ export type GizmosResponse = {
 
 export type CreateWidgetBody = {
   name: string;
+};
+
+export type ExhaustiveParamsBody = {
+  foo?: string;
+  bar?: string;
 };
 
 export type WidgetFoo = {
