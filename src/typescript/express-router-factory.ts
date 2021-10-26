@@ -12,7 +12,7 @@ import {
 } from '../types';
 import { warning } from './warning';
 
-export class ExpressServerFactory implements FileFactory {
+export class ExpressRouterFactory implements FileFactory {
   public readonly target = 'typescript';
 
   build(service: Service): File[] {

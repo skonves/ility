@@ -8,12 +8,14 @@ import {
   ValidatorFactory as TypescriptValidatorFactory,
 } from './typescript/validator-factory';
 import { ValidatorFactory as SorbetValidatorFactory } from './sorbet/validator-factory';
+import { ExpressRouterFactory as TypescriptExpressRouterFactory } from './typescript/express-router-factory';
 
 const factories = [
   new ComposedFileFactory(
     'typescript',
     new TypescriptInterfaceFactory(),
     new TypescriptValidatorFactory(defaultFactories),
+    new TypescriptExpressRouterFactory(),
   ),
   new ComposedFileFactory(
     'ruby-sorbet',

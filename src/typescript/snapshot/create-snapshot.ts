@@ -1,6 +1,6 @@
 import { readFileSync, writeFileSync, mkdirSync } from 'fs';
 import { join } from 'path';
-import { ExpressServerFactory } from '../express-router-factory';
+import { ExpressRouterFactory } from '../express-router-factory';
 import { InterfaceFactory } from '../interface-factory';
 import { defaultFactories, ValidatorFactory } from '../validator-factory';
 
@@ -13,7 +13,7 @@ const service = JSON.parse(
 const snapshotFiles = [
   ...new InterfaceFactory().build(service),
   ...new ValidatorFactory(defaultFactories).build(service),
-  ...new ExpressServerFactory().build(service),
+  ...new ExpressRouterFactory().build(service),
 ];
 
 for (const file of snapshotFiles) {

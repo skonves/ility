@@ -1,6 +1,6 @@
 import { readFileSync } from 'fs';
 import { join } from 'path';
-import { ExpressServerFactory } from './express-router-factory';
+import { ExpressRouterFactory } from './express-router-factory';
 import { InterfaceFactory } from './interface-factory';
 import { defaultFactories, ValidatorFactory } from './validator-factory';
 
@@ -14,7 +14,7 @@ describe('parser', () => {
     // ACT
     const int = new InterfaceFactory().build(service);
     const validator = new ValidatorFactory(defaultFactories).build(service);
-    const server = new ExpressServerFactory().build(service);
+    const server = new ExpressRouterFactory().build(service);
 
     // ASSERT
     for (const file of [...int, ...validator, ...server]) {
