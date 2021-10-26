@@ -14,6 +14,10 @@ const snapshotFiles = [
   ...new ValidatorFactory().build(service),
 ];
 
+const pkg = require('../../../package.json');
+const withVersion = `${pkg.name}@${pkg.version}`;
+const withoutVersion = `${pkg.name}@{{version}}`;
+
 for (const file of snapshotFiles) {
   const path = file.path.slice(0, file.path.length - 1);
   const filename = file.path[file.path.length - 1];
@@ -21,5 +25,8 @@ for (const file of snapshotFiles) {
   const fullpath = [process.cwd(), 'src', 'sorbet', 'snapshot', ...path];
 
   mkdirSync(join(...fullpath), { recursive: true });
-  writeFileSync(join(...fullpath, filename), file.contents);
+  writeFileSync(
+    join(...fullpath, filename),
+    file.contents.replace(withVersion, withoutVersion),
+  );
 }

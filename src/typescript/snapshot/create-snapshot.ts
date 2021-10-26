@@ -4,6 +4,10 @@ import { ExpressRouterFactory } from '../express-router-factory';
 import { InterfaceFactory } from '../interface-factory';
 import { defaultFactories, ValidatorFactory } from '../validator-factory';
 
+const pkg = require('../../../package.json');
+const withVersion = `${pkg.name}@${pkg.version}`;
+const withoutVersion = `${pkg.name}@{{version}}`;
+
 const service = JSON.parse(
   readFileSync(
     join(process.cwd(), 'src', 'oas2', 'snapshot', 'snapshot.json'),
@@ -23,7 +27,10 @@ for (const file of snapshotFiles) {
   const fullpath = [process.cwd(), 'src', 'typescript', 'snapshot', ...path];
 
   mkdirSync(join(...fullpath), { recursive: true });
-  writeFileSync(join(...fullpath, filename), file.contents);
+  writeFileSync(
+    join(...fullpath, filename),
+    file.contents.replace(withVersion, withoutVersion),
+  );
 
   // writeFileSync(
   //   join(process.cwd(), 'src', 'typescript', 'snapshot', ...file.path),
