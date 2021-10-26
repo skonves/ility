@@ -1,5 +1,6 @@
 import { readFileSync } from 'fs';
 import { join } from 'path';
+import { ExpressServerFactory } from './express-router-factory';
 import { InterfaceFactory } from './interface-factory';
 import { defaultFactories, ValidatorFactory } from './validator-factory';
 
@@ -13,9 +14,10 @@ describe('parser', () => {
     // ACT
     const int = new InterfaceFactory().build(service);
     const validator = new ValidatorFactory(defaultFactories).build(service);
+    const server = new ExpressServerFactory().build(service);
 
     // ASSERT
-    for (const file of [...int, ...validator]) {
+    for (const file of [...int, ...validator, ...server]) {
       const path = join('src', 'typescript', 'snapshot', ...file.path);
       const snapshot = readFileSync(path).toString();
       expect(file.contents).toStrictEqual(snapshot);

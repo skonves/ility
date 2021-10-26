@@ -150,6 +150,207 @@
           "maxLength": 30
         }
       ]
+    },
+    "/exhaustive/{path-string}/{path-enum}/{path-number}/{path-integer}/{path-boolean}/{path-string-array}/{path-enum-array}/{path-number-array}/{path-integer-array}/{path-boolean-array}": {
+      "get": {
+        "operationId": "exhaustiveParams",
+        "parameters": [
+          {
+            "name": "query-string",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "query-enum",
+            "in": "query",
+            "type": "string",
+            "enum": ["one", "two", "three"]
+          },
+          {
+            "name": "query-number",
+            "in": "query",
+            "type": "number"
+          },
+          {
+            "name": "query-integer",
+            "in": "query",
+            "type": "integer"
+          },
+          {
+            "name": "query-boolean",
+            "in": "query",
+            "type": "boolean"
+          },
+          {
+            "name": "query-string-array",
+            "in": "query",
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          {
+            "name": "query-enum-array",
+            "in": "query",
+            "type": "array",
+            "items": { "type": "string", "enum": ["one", "two", "three"] }
+          },
+          {
+            "name": "query-number-array",
+            "in": "query",
+            "type": "array",
+            "items": { "type": "number" }
+          },
+          {
+            "name": "query-integer-array",
+            "in": "query",
+            "type": "array",
+            "items": { "type": "integer" }
+          },
+          {
+            "name": "query-boolean-array",
+            "in": "query",
+            "type": "array",
+            "items": { "type": "boolean" }
+          },
+          {
+            "name": "path-string",
+            "in": "path",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "path-enum",
+            "in": "path",
+            "type": "string",
+            "required": true,
+            "enum": ["one", "two", "three"]
+          },
+          {
+            "name": "path-number",
+            "in": "path",
+            "type": "number",
+            "required": true
+          },
+          {
+            "name": "path-integer",
+            "in": "path",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "path-boolean",
+            "in": "path",
+            "type": "boolean",
+            "required": true
+          },
+          {
+            "name": "path-string-array",
+            "in": "path",
+            "type": "array",
+            "items": { "type": "string" },
+            "required": true
+          },
+          {
+            "name": "path-enum-array",
+            "in": "path",
+            "type": "array",
+            "items": { "type": "string", "enum": ["one", "two", "three"] },
+            "required": true
+          },
+          {
+            "name": "path-number-array",
+            "in": "path",
+            "type": "array",
+            "items": { "type": "number" },
+            "required": true
+          },
+          {
+            "name": "path-integer-array",
+            "in": "path",
+            "type": "array",
+            "items": { "type": "integer" },
+            "required": true
+          },
+          {
+            "name": "path-boolean-array",
+            "in": "path",
+            "type": "array",
+            "items": { "type": "boolean" },
+            "required": true
+          },
+          {
+            "name": "header-string",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "header-enum",
+            "in": "header",
+            "type": "string",
+            "enum": ["one", "two", "three"]
+          },
+          {
+            "name": "header-number",
+            "in": "header",
+            "type": "number"
+          },
+          {
+            "name": "header-integer",
+            "in": "header",
+            "type": "integer"
+          },
+          {
+            "name": "header-boolean",
+            "in": "header",
+            "type": "boolean"
+          },
+          {
+            "name": "header-string-array",
+            "in": "header",
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          {
+            "name": "header-enum-array",
+            "in": "header",
+            "type": "array",
+            "items": { "type": "string", "enum": ["one", "two", "three"] }
+          },
+          {
+            "name": "header-number-array",
+            "in": "header",
+            "type": "array",
+            "items": { "type": "number" }
+          },
+          {
+            "name": "header-integer-array",
+            "in": "header",
+            "type": "array",
+            "items": { "type": "integer" }
+          },
+          {
+            "name": "header-boolean-array",
+            "in": "header",
+            "type": "array",
+            "items": { "type": "boolean" }
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "foo": { "type": "string" },
+                "bar": { "type": "string" }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "operation with an exhaustive set of params"
+          }
+        }
+      }
     }
   },
   "definitions": {

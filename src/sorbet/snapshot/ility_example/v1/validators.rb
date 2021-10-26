@@ -168,6 +168,316 @@ module IlityExample::V1::Validators
   end
 
   sig do
+    params(path_string: String, path_enum: IlityExample::V1::ExhaustiveParamsPathEnum, path_number: Numeric, path_integer: Integer, path_boolean: T::Boolean, path_string_array: T::Array[String], path_enum_array: T::Array[IlityExample::V1::ExhaustiveParamsPathEnumArray], path_number_array: T::Array[Numeric], path_integer_array: T::Array[Integer], path_boolean_array: T::Array[T::Boolean], query_string: T.nilable(String), query_enum: T.nilable(IlityExample::V1::ExhaustiveParamsQueryEnum), query_number: T.nilable(Numeric), query_integer: T.nilable(Integer), query_boolean: T.nilable(T::Boolean), query_string_array: T.nilable(T::Array[String]), query_enum_array: T.nilable(T::Array[IlityExample::V1::ExhaustiveParamsQueryEnumArray]), query_number_array: T.nilable(T::Array[Numeric]), query_integer_array: T.nilable(T::Array[Integer]), query_boolean_array: T.nilable(T::Array[T::Boolean]), header_string: T.nilable(String), header_enum: T.nilable(IlityExample::V1::ExhaustiveParamsHeaderEnum), header_number: T.nilable(Numeric), header_integer: T.nilable(Integer), header_boolean: T.nilable(T::Boolean), header_string_array: T.nilable(T::Array[String]), header_enum_array: T.nilable(T::Array[IlityExample::V1::ExhaustiveParamsHeaderEnumArray]), header_number_array: T.nilable(T::Array[Numeric]), header_integer_array: T.nilable(T::Array[Integer]), header_boolean_array: T.nilable(T::Array[T::Boolean]), body: T.nilable(IlityExample::V1::ExhaustiveParamsBody)).
+      returns(T::Array[IlityExample::V1::ValidationError])
+  end
+  def validate_exhaustive_params_params(path_string:, path_enum:, path_number:, path_integer:, path_boolean:, path_string_array:, path_enum_array:, path_number_array:, path_integer_array:, path_boolean_array:, query_string: nil, query_enum: nil, query_number: nil, query_integer: nil, query_boolean: nil, query_string_array: nil, query_enum_array: nil, query_number_array: nil, query_integer_array: nil, query_boolean_array: nil, header_string: nil, header_enum: nil, header_number: nil, header_integer: nil, header_boolean: nil, header_string_array: nil, header_enum_array: nil, header_number_array: nil, header_integer_array: nil, header_boolean_array: nil, body: nil)
+    errors = T.let([], T::Array[IlityExample::V1::ValidationError])
+
+    if !query_string.nil? && !query_string.is_a?(String)
+      errors << IlityExample::V1::ValidationError.new(
+        code: 'TYPE',
+        title: '"query_string" must be a String if supplied',
+        path: 'query_string'
+      )
+    end
+
+    if !query_enum.nil?
+      errors.concat(validate_exhaustive_params_query_enum(T.must(query_enum)))
+    end
+
+    if !query_number.nil? && !query_number.is_a?(Numeric)
+      errors << IlityExample::V1::ValidationError.new(
+        code: 'TYPE',
+        title: '"query_number" must be a Numeric if supplied',
+        path: 'query_number'
+      )
+    end
+
+    if !query_integer.nil? && !query_integer.is_a?(Integer)
+      errors << IlityExample::V1::ValidationError.new(
+        code: 'TYPE',
+        title: '"query_integer" must be a Integer if supplied',
+        path: 'query_integer'
+      )
+    end
+
+    if !query_boolean.nil? && !query_boolean.is_a?(TrueClass) && !query_boolean.is_a?(FalseClass)
+      errors << IlityExample::V1::ValidationError.new(
+        code: 'TYPE',
+        title: '"query_boolean" must be a T::Boolean if supplied',
+        path: 'query_boolean'
+      )
+    end
+
+    if query_string_array.is_a?(Array) && query_string_array.any? { |x| !x.is_a?(String) }
+      errors << IlityExample::V1::ValidationError.new(
+        code: 'TYPE',
+        title: 'Each item in "query_string_array" must be a String if supplied',
+        path: 'query_string_array'
+      )
+    end
+
+    if !query_enum_array.nil?
+      T.must(query_enum_array).each { |x| errors.concat(validate_exhaustive_params_query_enum_array(x)) }
+    end
+
+    if query_number_array.is_a?(Array) && query_number_array.any? { |x| !x.is_a?(Numeric) }
+      errors << IlityExample::V1::ValidationError.new(
+        code: 'TYPE',
+        title: 'Each item in "query_number_array" must be a Numeric if supplied',
+        path: 'query_number_array'
+      )
+    end
+
+    if query_integer_array.is_a?(Array) && query_integer_array.any? { |x| !x.is_a?(Integer) }
+      errors << IlityExample::V1::ValidationError.new(
+        code: 'TYPE',
+        title: 'Each item in "query_integer_array" must be a Integer if supplied',
+        path: 'query_integer_array'
+      )
+    end
+
+    if query_boolean_array.is_a?(Array) && query_boolean_array.any? { |x| !x.is_a?(T::Boolean) }
+      errors << IlityExample::V1::ValidationError.new(
+        code: 'TYPE',
+        title: 'Each item in "query_boolean_array" must be a T::Boolean if supplied',
+        path: 'query_boolean_array'
+      )
+    end
+
+    if T.unsafe(path_string).nil?
+      errors << IlityExample::V1::ValidationError.new(
+        code: 'REQUIRED',
+        title: '"path_string" is required',
+        path: 'path_string'
+      )
+    end
+
+    if !path_string.nil? && !path_string.is_a?(String)
+      errors << IlityExample::V1::ValidationError.new(
+        code: 'TYPE',
+        title: '"path_string" must be a String',
+        path: 'path_string'
+      )
+    end
+
+    if T.unsafe(path_enum).nil?
+      errors << IlityExample::V1::ValidationError.new(
+        code: 'REQUIRED',
+        title: '"path_enum" is required',
+        path: 'path_enum'
+      )
+    end
+
+    if !path_enum.nil?
+      errors.concat(validate_exhaustive_params_path_enum(path_enum))
+    end
+
+    if T.unsafe(path_number).nil?
+      errors << IlityExample::V1::ValidationError.new(
+        code: 'REQUIRED',
+        title: '"path_number" is required',
+        path: 'path_number'
+      )
+    end
+
+    if !path_number.nil? && !path_number.is_a?(Numeric)
+      errors << IlityExample::V1::ValidationError.new(
+        code: 'TYPE',
+        title: '"path_number" must be a Numeric',
+        path: 'path_number'
+      )
+    end
+
+    if T.unsafe(path_integer).nil?
+      errors << IlityExample::V1::ValidationError.new(
+        code: 'REQUIRED',
+        title: '"path_integer" is required',
+        path: 'path_integer'
+      )
+    end
+
+    if !path_integer.nil? && !path_integer.is_a?(Integer)
+      errors << IlityExample::V1::ValidationError.new(
+        code: 'TYPE',
+        title: '"path_integer" must be a Integer',
+        path: 'path_integer'
+      )
+    end
+
+    if T.unsafe(path_boolean).nil?
+      errors << IlityExample::V1::ValidationError.new(
+        code: 'REQUIRED',
+        title: '"path_boolean" is required',
+        path: 'path_boolean'
+      )
+    end
+
+    if !path_boolean.nil? && !path_boolean.is_a?(TrueClass) && !path_boolean.is_a?(FalseClass)
+      errors << IlityExample::V1::ValidationError.new(
+        code: 'TYPE',
+        title: '"path_boolean" must be a T::Boolean',
+        path: 'path_boolean'
+      )
+    end
+
+    if T.unsafe(path_string_array).nil?
+      errors << IlityExample::V1::ValidationError.new(
+        code: 'REQUIRED',
+        title: '"path_string_array" is required',
+        path: 'path_string_array'
+      )
+    end
+
+    if path_string_array.is_a?(Array) && path_string_array.any? { |x| !x.is_a?(String) }
+      errors << IlityExample::V1::ValidationError.new(
+        code: 'TYPE',
+        title: 'Each item in "path_string_array" must be a String',
+        path: 'path_string_array'
+      )
+    end
+
+    if T.unsafe(path_enum_array).nil?
+      errors << IlityExample::V1::ValidationError.new(
+        code: 'REQUIRED',
+        title: '"path_enum_array" is required',
+        path: 'path_enum_array'
+      )
+    end
+
+    if !path_enum_array.nil?
+      path_enum_array.each { |x| errors.concat(validate_exhaustive_params_path_enum_array(x)) }
+    end
+
+    if T.unsafe(path_number_array).nil?
+      errors << IlityExample::V1::ValidationError.new(
+        code: 'REQUIRED',
+        title: '"path_number_array" is required',
+        path: 'path_number_array'
+      )
+    end
+
+    if path_number_array.is_a?(Array) && path_number_array.any? { |x| !x.is_a?(Numeric) }
+      errors << IlityExample::V1::ValidationError.new(
+        code: 'TYPE',
+        title: 'Each item in "path_number_array" must be a Numeric',
+        path: 'path_number_array'
+      )
+    end
+
+    if T.unsafe(path_integer_array).nil?
+      errors << IlityExample::V1::ValidationError.new(
+        code: 'REQUIRED',
+        title: '"path_integer_array" is required',
+        path: 'path_integer_array'
+      )
+    end
+
+    if path_integer_array.is_a?(Array) && path_integer_array.any? { |x| !x.is_a?(Integer) }
+      errors << IlityExample::V1::ValidationError.new(
+        code: 'TYPE',
+        title: 'Each item in "path_integer_array" must be a Integer',
+        path: 'path_integer_array'
+      )
+    end
+
+    if T.unsafe(path_boolean_array).nil?
+      errors << IlityExample::V1::ValidationError.new(
+        code: 'REQUIRED',
+        title: '"path_boolean_array" is required',
+        path: 'path_boolean_array'
+      )
+    end
+
+    if path_boolean_array.is_a?(Array) && path_boolean_array.any? { |x| !x.is_a?(T::Boolean) }
+      errors << IlityExample::V1::ValidationError.new(
+        code: 'TYPE',
+        title: 'Each item in "path_boolean_array" must be a T::Boolean',
+        path: 'path_boolean_array'
+      )
+    end
+
+    if !header_string.nil? && !header_string.is_a?(String)
+      errors << IlityExample::V1::ValidationError.new(
+        code: 'TYPE',
+        title: '"header_string" must be a String if supplied',
+        path: 'header_string'
+      )
+    end
+
+    if !header_enum.nil?
+      errors.concat(validate_exhaustive_params_header_enum(T.must(header_enum)))
+    end
+
+    if !header_number.nil? && !header_number.is_a?(Numeric)
+      errors << IlityExample::V1::ValidationError.new(
+        code: 'TYPE',
+        title: '"header_number" must be a Numeric if supplied',
+        path: 'header_number'
+      )
+    end
+
+    if !header_integer.nil? && !header_integer.is_a?(Integer)
+      errors << IlityExample::V1::ValidationError.new(
+        code: 'TYPE',
+        title: '"header_integer" must be a Integer if supplied',
+        path: 'header_integer'
+      )
+    end
+
+    if !header_boolean.nil? && !header_boolean.is_a?(TrueClass) && !header_boolean.is_a?(FalseClass)
+      errors << IlityExample::V1::ValidationError.new(
+        code: 'TYPE',
+        title: '"header_boolean" must be a T::Boolean if supplied',
+        path: 'header_boolean'
+      )
+    end
+
+    if header_string_array.is_a?(Array) && header_string_array.any? { |x| !x.is_a?(String) }
+      errors << IlityExample::V1::ValidationError.new(
+        code: 'TYPE',
+        title: 'Each item in "header_string_array" must be a String if supplied',
+        path: 'header_string_array'
+      )
+    end
+
+    if !header_enum_array.nil?
+      T.must(header_enum_array).each { |x| errors.concat(validate_exhaustive_params_header_enum_array(x)) }
+    end
+
+    if header_number_array.is_a?(Array) && header_number_array.any? { |x| !x.is_a?(Numeric) }
+      errors << IlityExample::V1::ValidationError.new(
+        code: 'TYPE',
+        title: 'Each item in "header_number_array" must be a Numeric if supplied',
+        path: 'header_number_array'
+      )
+    end
+
+    if header_integer_array.is_a?(Array) && header_integer_array.any? { |x| !x.is_a?(Integer) }
+      errors << IlityExample::V1::ValidationError.new(
+        code: 'TYPE',
+        title: 'Each item in "header_integer_array" must be a Integer if supplied',
+        path: 'header_integer_array'
+      )
+    end
+
+    if header_boolean_array.is_a?(Array) && header_boolean_array.any? { |x| !x.is_a?(T::Boolean) }
+      errors << IlityExample::V1::ValidationError.new(
+        code: 'TYPE',
+        title: 'Each item in "header_boolean_array" must be a T::Boolean if supplied',
+        path: 'header_boolean_array'
+      )
+    end
+
+    if !body.nil?
+      errors.concat(validate_exhaustive_params_body(T.must(body)))
+    end
+
+    errors
+  end
+
+  sig do
     params(gizmo: IlityExample::V1::Gizmo).
       returns(T::Array[IlityExample::V1::ValidationError])
   end
@@ -446,6 +756,32 @@ module IlityExample::V1::Validators
   end
 
   sig do
+    params(exhaustive_params_body: IlityExample::V1::ExhaustiveParamsBody).
+      returns(T::Array[IlityExample::V1::ValidationError])
+  end
+  def validate_exhaustive_params_body(exhaustive_params_body)
+    errors = T.let([], T::Array[IlityExample::V1::ValidationError])
+
+    if !exhaustive_params_body.foo.nil? && !exhaustive_params_body.foo.is_a?(String)
+      errors << IlityExample::V1::ValidationError.new(
+        code: 'TYPE',
+        title: '"exhaustive_params_body.foo" must be a String if supplied',
+        path: 'exhaustive_params_body.foo'
+      )
+    end
+
+    if !exhaustive_params_body.bar.nil? && !exhaustive_params_body.bar.is_a?(String)
+      errors << IlityExample::V1::ValidationError.new(
+        code: 'TYPE',
+        title: '"exhaustive_params_body.bar" must be a String if supplied',
+        path: 'exhaustive_params_body.bar'
+      )
+    end
+
+    errors
+  end
+
+  sig do
     params(widget_foo: IlityExample::V1::WidgetFoo).
       returns(T::Array[IlityExample::V1::ValidationError])
   end
@@ -518,6 +854,54 @@ module IlityExample::V1::Validators
       returns(T::Array[IlityExample::V1::ValidationError])
   end
   def validate_create_gizmo_size(create_gizmo_size)
+    []
+  end
+
+  sig do
+    params(exhaustive_params_query_enum: IlityExample::V1::ExhaustiveParamsQueryEnum).
+      returns(T::Array[IlityExample::V1::ValidationError])
+  end
+  def validate_exhaustive_params_query_enum(exhaustive_params_query_enum)
+    []
+  end
+
+  sig do
+    params(exhaustive_params_query_enum_array: IlityExample::V1::ExhaustiveParamsQueryEnumArray).
+      returns(T::Array[IlityExample::V1::ValidationError])
+  end
+  def validate_exhaustive_params_query_enum_array(exhaustive_params_query_enum_array)
+    []
+  end
+
+  sig do
+    params(exhaustive_params_path_enum: IlityExample::V1::ExhaustiveParamsPathEnum).
+      returns(T::Array[IlityExample::V1::ValidationError])
+  end
+  def validate_exhaustive_params_path_enum(exhaustive_params_path_enum)
+    []
+  end
+
+  sig do
+    params(exhaustive_params_path_enum_array: IlityExample::V1::ExhaustiveParamsPathEnumArray).
+      returns(T::Array[IlityExample::V1::ValidationError])
+  end
+  def validate_exhaustive_params_path_enum_array(exhaustive_params_path_enum_array)
+    []
+  end
+
+  sig do
+    params(exhaustive_params_header_enum: IlityExample::V1::ExhaustiveParamsHeaderEnum).
+      returns(T::Array[IlityExample::V1::ValidationError])
+  end
+  def validate_exhaustive_params_header_enum(exhaustive_params_header_enum)
+    []
+  end
+
+  sig do
+    params(exhaustive_params_header_enum_array: IlityExample::V1::ExhaustiveParamsHeaderEnumArray).
+      returns(T::Array[IlityExample::V1::ValidationError])
+  end
+  def validate_exhaustive_params_header_enum_array(exhaustive_params_header_enum_array)
     []
   end
 end

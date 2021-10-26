@@ -289,10 +289,10 @@ function buildMessage(param: Parameter | Property, message: string): string {
 
 function buildRequiredClause(param: Parameter | Property): string | undefined {
   if (isRequired(param)) {
-    return `if(typeof ${param.name} === 'undefined') {${buildError(
+    return `if(typeof ${camel(param.name)} === 'undefined') {${buildError(
       'required',
-      `"${param.name}" is required`,
-      param.name,
+      `"${camel(param.name)}" is required`,
+      camel(param.name),
     )}}`;
   }
   return;
