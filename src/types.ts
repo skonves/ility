@@ -1,22 +1,26 @@
+export type Pluggable = {
+  plugins?: Record<string, any>;
+};
+
 export type Service = {
   title: string;
   majorVersion: number;
   interfaces: Interface[];
   types: Type[];
   enums: Enum[];
-};
+} & Pluggable;
 
 export type Type = {
   name: string;
   description?: string | string[];
   properties: Property[];
   rules: ObjectValidationRule[];
-};
+} & Pluggable;
 
 export type Enum = {
   name: string;
   values: string[];
-};
+} & Pluggable;
 
 export type Property = {
   name: string;
@@ -26,7 +30,7 @@ export type Property = {
   isArray: boolean;
   isLocal: boolean;
   rules: ValidationRule[];
-};
+} & Pluggable;
 
 export type Interface = {
   name: string;
@@ -35,7 +39,7 @@ export type Interface = {
   protocols: {
     http: PathSpec[];
   };
-};
+} & Pluggable;
 
 export type PathSpec = {
   path: string;
@@ -60,7 +64,7 @@ export type Method = {
   description?: string | string[];
   parameters: Parameter[];
   returnType: ReturnType | undefined;
-};
+} & Pluggable;
 
 export type Parameter = {
   name: string;
@@ -70,7 +74,7 @@ export type Parameter = {
   isArray: boolean;
   isLocal: boolean;
   rules: ValidationRule[];
-};
+} & Pluggable;
 
 export type ReturnType = {
   typeName: string;
@@ -78,7 +82,7 @@ export type ReturnType = {
   isArray: boolean;
   isLocal: boolean;
   rules: ValidationRule[];
-};
+} & Pluggable;
 
 export type RequiredRule = {
   id: 'required';
