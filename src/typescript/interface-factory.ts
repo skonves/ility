@@ -62,21 +62,29 @@ export class InterfaceFactory implements FileFactory {
   }
 
   private *buildMethod(method: Method): Iterable<string> {
-    yield* this.buildDescription(method.description, method.parameters, 2);
-    yield `  async ${camel(method.name)}(`;
+    yield* this.buildDescription(method.description, 2);
 
-    const sortedParams = [
-      ...method.parameters.filter((p) => isRequired(p)),
-      ...method.parameters.filter((p) => !isRequired(p)),
-    ];
+    const requiredParams = method.parameters.filter((p) => isRequired(p));
+    const optionalParams = method.parameters.filter((p) => !isRequired(p));
+    const sortedParams = [...requiredParams, ...optionalParams];
+
+    yield `  async ${camel(method.name)}(${
+      method.parameters.length
+        ? `params${requiredParams.length ? '' : '?'}: {`
+        : ''
+    }`;
 
     for (const param of sortedParams) {
+      if (param.description) {
+        yield* this.buildDescription(param.description, 2);
+      }
+
       yield `    ${camel(param.name)}${
         isRequired(param) ? '' : '?'
       }: ${this.buildTypeName(param)},`;
     }
 
-    yield `  ): Promise<${
+    yield `  ${method.parameters.length ? '}' : ''}): Promise<${
       method.returnType ? this.buildTypeName(method.returnType) : 'void'
     }>;`;
   }
@@ -103,12 +111,12 @@ export class InterfaceFactory implements FileFactory {
 
   private *buildDescription(
     description: string | string[] | undefined,
-    params: Parameter[] = [],
+    // params: Parameter[] = [],
     indent: number = 0,
   ): Iterable<string> {
     const s = ' '.repeat(indent);
 
-    if (description || params.length) {
+    if (description) {
       yield ``;
       yield `${s}/**`;
 
@@ -122,16 +130,16 @@ export class InterfaceFactory implements FileFactory {
         }
       }
 
-      const sortedParams = [
-        ...params.filter((p) => isRequired(p)),
-        ...params.filter((p) => !isRequired(p)),
-      ];
+      // const sortedParams = [
+      //   ...params.filter((p) => isRequired(p)),
+      //   ...params.filter((p) => !isRequired(p)),
+      // ];
 
-      for (const param of sortedParams) {
-        yield `${s} * @param ${camel(param.name)}${
-          param.description ? ` ${param.description}` : ''
-        }`;
-      }
+      // for (const param of sortedParams) {
+      //   yield `${s} * @param ${camel(param.name)}${
+      //     param.description ? ` ${param.description}` : ''
+      //   }`;
+      // }
 
       yield `${s} */`;
     }
