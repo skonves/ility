@@ -33,12 +33,17 @@ export class OAS2Parser implements Parser {
     const interfaces = this.parseInterfaces();
     const types = this.parseDefinitions();
 
+    const enumsByName = this.enums.reduce(
+      (acc, item) => ({ ...acc, [item.name]: item }),
+      {},
+    );
+
     return {
       title: pascal(this.schema.info.title),
       majorVersion: major(this.schema.info.version),
       interfaces,
       types: [...types, ...this.anonymousTypes],
-      enums: this.enums,
+      enums: Object.keys(enumsByName).map((name) => enumsByName[name]),
     };
   }
 
@@ -248,7 +253,21 @@ export class OAS2Parser implements Parser {
       if (def.$ref.startsWith('#/definitions/')) {
         if (res.type === 'object') {
           return {
-            typeName: def.$ref.substr(14),
+            typeName: def.$ref.substring(14),
+            isUnknown: false,
+            isLocal: true,
+            isArray: false,
+            rules: this.parseRules(res),
+          };
+        } else if (res.type === 'string' && res.enum) {
+          const name = def.$ref.substring(14);
+
+          this.enums.push({
+            name,
+            values: res.enum,
+          });
+          return {
+            typeName: name,
             isUnknown: false,
             isLocal: true,
             isArray: false,
@@ -424,10 +443,11 @@ export class OAS2Parser implements Parser {
       const required = new Set<string>(def.required || []);
       const props: Property[] = [];
       for (const name in def.properties) {
-        const resolvedProp = this.resolve(def.properties[name]);
+        const prop = def.properties[name];
+        const resolvedProp = this.resolve(prop);
 
         const { typeName, isUnknown, isArray, isLocal } = this.parseType(
-          resolvedProp,
+          prop,
           name,
           parentName || '',
         );
