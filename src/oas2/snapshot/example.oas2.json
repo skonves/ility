@@ -359,10 +359,10 @@
       "properties": {
         "id": { "$ref": "#/definitions/id" },
         "name": { "type": "string" },
-        "size": { "$ref": "#/definitions/gizmoSize" }
+        "size": { "$ref": "#/definitions/productSize" }
       }
     },
-    "gizmoSize": {
+    "productSize": {
       "type": "string",
       "enum": ["small", "medium", "large"]
     },
@@ -398,7 +398,8 @@
             "fiz": { "type": "number" },
             "buzz": { "type": "number" }
           }
-        }
+        },
+        "size": { "$ref": "#/definitions/productSize" }
       }
     },
     "id": {

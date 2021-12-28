@@ -614,7 +614,7 @@
         },
         {
           "name": "size",
-          "typeName": "gizmoSize",
+          "typeName": "productSize",
           "isUnknown": false,
           "isArray": false,
           "isLocal": true,
@@ -681,6 +681,16 @@
           "isArray": false,
           "isLocal": true,
           "rules": []
+        },
+        {
+          "name": "size",
+          "typeName": "productSize",
+          "isUnknown": false,
+          "isArray": false,
+          "isLocal": true,
+          "rules": [
+            { "id": "string-enum", "values": ["small", "medium", "large"] }
+          ]
         }
       ],
       "rules": [{ "id": "object-additional-properties", "forbidden": true }]
@@ -730,6 +740,16 @@
           "isArray": false,
           "isLocal": true,
           "rules": []
+        },
+        {
+          "name": "size",
+          "typeName": "productSize",
+          "isUnknown": false,
+          "isArray": false,
+          "isLocal": true,
+          "rules": [
+            { "id": "string-enum", "values": ["small", "medium", "large"] }
+          ]
         }
       ],
       "rules": []
@@ -846,6 +866,6 @@
       "name": "exhaustiveParamsHeaderEnumArray",
       "values": ["one", "two", "three"]
     },
-    { "name": "gizmoSize", "values": ["small", "medium", "large"] }
+    { "name": "productSize", "values": ["small", "medium", "large"] }
   ]
 }

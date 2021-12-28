@@ -642,7 +642,7 @@ export function validateGizmo({
     });
   }
   if (typeof size !== 'undefined') {
-    errors.push(...validateGizmoSize(size));
+    errors.push(...validateProductSize(size));
   }
   if (
     typeof size === 'string' &&
@@ -667,6 +667,7 @@ export function validateWidget({
   buzz,
   fizbuzz,
   foo,
+  size,
 }: types.Widget): ValidationError[] {
   const errors: ValidationError[] = [];
   if (typeof id === 'undefined') {
@@ -748,6 +749,19 @@ export function validateWidget({
   if (typeof foo !== 'undefined') {
     errors.push(...validateWidgetFoo(foo));
   }
+  if (typeof size !== 'undefined') {
+    errors.push(...validateProductSize(size));
+  }
+  if (
+    typeof size === 'string' &&
+    !['small', 'medium', 'large'].includes(size)
+  ) {
+    errors.push({
+      code: 'STRING_ENUM',
+      title: '"size" must be one of ["small", "medium", "large"]',
+      path: 'size',
+    });
+  }
   return errors;
 }
 export function isWidget(obj: any): obj is types.Widget {
@@ -760,6 +774,7 @@ export function validateNewWidget({
   buzz,
   fizbuzz,
   foo,
+  size,
 }: types.NewWidget): ValidationError[] {
   const errors: ValidationError[] = [];
   if (typeof name !== 'undefined' && typeof name !== 'string') {
@@ -827,6 +842,19 @@ export function validateNewWidget({
   }
   if (typeof foo !== 'undefined') {
     errors.push(...validateNewWidgetFoo(foo));
+  }
+  if (typeof size !== 'undefined') {
+    errors.push(...validateProductSize(size));
+  }
+  if (
+    typeof size === 'string' &&
+    !['small', 'medium', 'large'].includes(size)
+  ) {
+    errors.push({
+      code: 'STRING_ENUM',
+      title: '"size" must be one of ["small", "medium", "large"]',
+      path: 'size',
+    });
   }
   return errors;
 }
@@ -1090,13 +1118,13 @@ export function validateExhaustiveParamsHeaderEnumArray(
   return [];
 }
 
-export function validateGizmoSize(
-  gizmoSize: types.GizmoSize,
+export function validateProductSize(
+  productSize: types.ProductSize,
 ): ValidationError[] {
   const errors: ValidationError[] = [];
   if (
-    typeof gizmoSize === 'string' &&
-    !['small', 'medium', 'large'].includes(gizmoSize)
+    typeof productSize === 'string' &&
+    !['small', 'medium', 'large'].includes(productSize)
   ) {
     errors.push({
       code: 'STRING_ENUM',

@@ -509,7 +509,7 @@ module IlityExample::V1::Validators
     end
 
     if !gizmo.size.nil?
-      errors.concat(validate_gizmo_size(T.must(gizmo.size)))
+      errors.concat(validate_product_size(T.must(gizmo.size)))
     end
 
     errors
@@ -622,6 +622,10 @@ module IlityExample::V1::Validators
       errors.concat(validate_widget_foo(T.must(widget.foo)))
     end
 
+    if !widget.size.nil?
+      errors.concat(validate_product_size(T.must(widget.size)))
+    end
+
     errors
   end
 
@@ -706,6 +710,10 @@ module IlityExample::V1::Validators
 
     if !new_widget.foo.nil?
       errors.concat(validate_new_widget_foo(T.must(new_widget.foo)))
+    end
+
+    if !new_widget.size.nil?
+      errors.concat(validate_product_size(T.must(new_widget.size)))
     end
 
     errors
@@ -910,10 +918,10 @@ module IlityExample::V1::Validators
   end
 
   sig do
-    params(gizmo_size: IlityExample::V1::GizmoSize).
+    params(product_size: IlityExample::V1::ProductSize).
       returns(T::Array[IlityExample::V1::ValidationError])
   end
-  def validate_gizmo_size(gizmo_size)
+  def validate_product_size(product_size)
     []
   end
 end

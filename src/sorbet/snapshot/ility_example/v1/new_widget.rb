@@ -18,5 +18,6 @@ module IlityExample::V1
     const :buzz, T.nilable(Numeric)
     const :fizbuzz, T.nilable(Numeric)
     const :foo, T.nilable(IlityExample::V1::NewWidgetFoo)
+    const :size, T.nilable(IlityExample::V1::ProductSize)
   end
 end
