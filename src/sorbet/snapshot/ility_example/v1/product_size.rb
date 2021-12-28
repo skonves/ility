@@ -9,12 +9,11 @@
 require 'typed_struct_helper'
 
 module IlityExample::V1
-  class Gizmo < T::Struct
-    extend T::Sig
-    include TypedStructHelper
-
-    const :id, T.nilable(String)
-    const :name, T.nilable(String)
-    const :size, T.nilable(IlityExample::V1::ProductSize)
+  class ProductSize < T::Enum
+    enums do
+      SMALL = new('small')
+      MEDIUM = new('medium')
+      LARGE = new('large')
+    end
   end
 end
