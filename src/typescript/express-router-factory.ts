@@ -78,7 +78,9 @@ function* buildRouter(int: Interface, service: Service): Iterable<string> {
         ...method.parameters.filter((p) => isRequired(p)),
         ...method.parameters.filter((p) => !isRequired(p)),
       ];
-      const paramString = sortedParams.map((p) => camel(p.name)).join(', ');
+      const paramString = sortedParams.length
+        ? `{${sortedParams.map((p) => camel(p.name)).join(', ')}}`
+        : '';
 
       yield `    .${methodSpec.verb.toLocaleLowerCase()}(async (req, res, next) => {`;
       yield `      try {`;

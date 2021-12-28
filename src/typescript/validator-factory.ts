@@ -89,23 +89,34 @@ export class ValidatorFactory implements FileFactory {
   private *buildMethodParamsValidator(
     method: Method,
   ): Iterable<string | undefined> {
-    yield* this.buildDescription(method.name, method.parameters);
-    yield `export function ${camel(`validate_${method.name}_params`)}(`;
+    yield* this.buildDescription(method.name);
 
-    const sortedParams = [
-      ...method.parameters.filter((p) => isRequired(p)),
-      ...method.parameters.filter((p) => !isRequired(p)),
-    ];
+    const requiredParams = method.parameters.filter((p) => isRequired(p));
+    const optionalParams = method.parameters.filter((p) => !isRequired(p));
+    const sortedParams = [...requiredParams, ...optionalParams];
+
+    yield `export function ${camel(`validate_${method.name}_params`)}(${
+      method.parameters.length
+        ? `params${requiredParams.length ? '' : '?'}: {`
+        : ''
+    }`;
 
     for (const param of sortedParams) {
+      if (param.description) {
+        yield* this.buildMultilineDescription(param.description, 2);
+      }
       yield `    ${camel(param.name)}${isRequired(param) ? '' : '?'}: ${
         param.isLocal ? 'types.' : ''
       }${buildTypeName(param)},`;
     }
 
-    yield `): ValidationError[] {`;
+    yield `  ${method.parameters.length ? '}' : ''}): ValidationError[] {`;
     if (method.parameters.length) {
       yield 'const errors: ValidationError[] = [];';
+    }
+
+    if (!requiredParams.length && optionalParams.length) {
+      yield 'if(!params) return [];';
     }
 
     for (const param of method.parameters) {
@@ -129,9 +140,9 @@ export class ValidatorFactory implements FileFactory {
   }
 
   private *buildTypeValidator(type: Type): Iterable<string | undefined> {
-    yield `export function ${camel(`validate_${type.name}`)}({`;
-    yield type.properties.map((p) => camel(p.name)).join(',');
-    yield `}: types.${pascal(type.name)}): ValidationError[] {`;
+    yield `export function ${camel(
+      `validate_${type.name}`,
+    )}(params: types.${pascal(type.name)}): ValidationError[] {`;
 
     if (type.properties.length || type.rules.length) {
       yield 'const errors: ValidationError[] = [];';
@@ -174,17 +185,17 @@ export class ValidatorFactory implements FileFactory {
   }
 
   private *buildEnumValidator(e: Enum): Iterable<string | undefined> {
-    yield `export function ${camel(`validate_${e.name}`)}(${camel(
+    yield `export function ${camel(`validate_${e.name}`)}(value: types.${pascal(
       e.name,
-    )}: types.${pascal(e.name)}): ValidationError[] {`;
+    )}): ValidationError[] {`;
 
     yield 'const errors: ValidationError[] = [];';
 
     const values = `[${e.values.map((v) => `"${v}"`).join(', ')}]`;
 
     const conditions = [
-      `typeof ${camel(e.name)} === 'string'`,
-      `!${values}.includes(${camel(e.name)})`,
+      `typeof value === 'string'`,
+      `!${values}.includes(value)`,
     ];
 
     yield `if(${conditions.join(' && ')}) {${buildError(
@@ -198,29 +209,40 @@ export class ValidatorFactory implements FileFactory {
     yield `}`;
   }
 
+  private *buildMultilineDescription(
+    description: string | string[] | undefined,
+    // params: Parameter[] = [],
+    indent: number = 0,
+  ): Iterable<string> {
+    const s = ' '.repeat(indent);
+
+    if (description) {
+      yield ``;
+      yield `${s}/**`;
+
+      if (description) {
+        if (typeof description === 'string') {
+          yield `${s} * ${description}`;
+        } else {
+          for (const line of description) {
+            yield `${s} * ${line}`;
+          }
+        }
+      }
+
+      yield `${s} */`;
+    }
+  }
+
   private *buildDescription(
     name: string,
-    params: Parameter[] = [],
     indent: number = 0,
   ): Iterable<string> {
     const s = ' '.repeat(indent);
 
     yield ``;
     yield `${s}/**`;
-
     yield `${s} * Validates input parameters for the ${camel(name)}() method.`;
-
-    const sortedParams = [
-      ...params.filter((p) => isRequired(p)),
-      ...params.filter((p) => !isRequired(p)),
-    ];
-
-    for (const param of sortedParams) {
-      yield `${s} * @param ${camel(param.name)}${
-        param.description ? ` ${param.description}` : ''
-      }`;
-    }
-
     yield `${s} */`;
   }
 }
@@ -275,11 +297,13 @@ function buildConditions(
 ): string[] {
   if (param.isArray) {
     return [
-      `Array.isArray(${camel(param.name)})`,
-      `!${camel(param.name)}.some((x) => ${conditions('x').join(' && ')})`,
+      `Array.isArray(params.${camel(param.name)})`,
+      `!params.${camel(param.name)}.some((x) => ${conditions('x').join(
+        ' && ',
+      )})`,
     ];
   } else {
-    return conditions(camel(param.name));
+    return conditions(`params.` + camel(param.name));
   }
 }
 
@@ -289,7 +313,9 @@ function buildMessage(param: Parameter | Property, message: string): string {
 
 function buildRequiredClause(param: Parameter | Property): string | undefined {
   if (isRequired(param)) {
-    return `if(typeof ${camel(param.name)} === 'undefined') {${buildError(
+    return `if(typeof params.${camel(
+      param.name,
+    )} === 'undefined') {${buildError(
       'required',
       `"${camel(param.name)}" is required`,
       camel(param.name),
@@ -306,12 +332,14 @@ function buildNonLocalTypeClause(
 
     const conditions = param.isArray
       ? [
-          `Array.isArray(${camel(param.name)})`,
-          `${camel(param.name)}.some(x => typeof x !== '${rootTypeName}')`,
+          `Array.isArray(params.${camel(param.name)})`,
+          `params.${camel(
+            param.name,
+          )}.some(x => typeof x !== '${rootTypeName}')`,
         ]
       : [
-          `typeof ${camel(param.name)} !== 'undefined'`,
-          `typeof ${camel(param.name)} !== '${rootTypeName}'`,
+          `typeof params.${camel(param.name)} !== 'undefined'`,
+          `typeof params.${camel(param.name)} !== '${rootTypeName}'`,
         ];
 
     const message = `"${camel(param.name)}" must be a ${rootTypeName}`;
@@ -331,17 +359,19 @@ function buildNonLocalTypeClause(
 function buildLocalTypeClause(param: Parameter | Property): string | undefined {
   if (param.isLocal && !param.isUnknown) {
     if (param.isArray) {
-      return `if(typeof ${camel(param.name)} !== 'undefined') {${camel(
+      return `if(typeof params.${camel(
+        param.name,
+      )} !== 'undefined') {params.${camel(
         param.name,
       )}.forEach( arrayItem => errors.push(...${camel(
         `validate_${buildTypeName(param)}`,
       )}(arrayItem)));}`;
     } else {
-      return `if(typeof ${camel(
+      return `if(typeof params.${camel(
         param.name,
       )} !== 'undefined') { errors.push(...${camel(
         `validate_${buildTypeName(param)}`,
-      )}(${camel(param.name)})); }`;
+      )}(params.${camel(param.name)})); }`;
     }
   }
   return;
@@ -351,7 +381,7 @@ export const buildStringEnumRuleClause: GuardClauseFactory = (param, rule) => {
   if (rule.id === 'string-enum') {
     const values = `[${rule.values.map((v) => `"${v}"`).join(', ')}]`;
 
-    const conditions = buildConditions(param, (name: string) => [
+    const conditions = buildConditions(param, (name) => [
       `typeof ${name} === 'string'`,
       `!${values}.includes(${name})`,
     ]);
@@ -367,7 +397,7 @@ export const buildStringEnumRuleClause: GuardClauseFactory = (param, rule) => {
 
 export const buildStringMaxLengthClause: GuardClauseFactory = (param, rule) => {
   if (rule.id === 'string-max-length') {
-    const conditions = buildConditions(param, (name: string) => [
+    const conditions = buildConditions(param, (name) => [
       `typeof ${name} === 'string'`,
       `${name}.length > ${rule.length}`,
     ]);
@@ -386,9 +416,9 @@ export const buildStringMaxLengthClause: GuardClauseFactory = (param, rule) => {
 
 export const buildStringMinLengthClause: GuardClauseFactory = (param, rule) => {
   if (rule.id === 'string-min-length') {
-    const conditions = buildConditions(param, (name: string) => [
+    const conditions = buildConditions(param, (name) => [
       `typeof ${name} === 'string'`,
-      `${name}.length < ${rule.length}`,
+      `$${name}.length < ${rule.length}`,
     ]);
 
     return `if(${conditions.join(' && ')}) {${buildError(
@@ -405,7 +435,7 @@ export const buildStringMinLengthClause: GuardClauseFactory = (param, rule) => {
 
 export const buildStringPatternClause: GuardClauseFactory = (param, rule) => {
   if (rule.id === 'string-pattern') {
-    const conditions = buildConditions(param, (name: string) => [
+    const conditions = buildConditions(param, (name) => [
       `typeof ${name} === 'string'`,
       `/${rule.pattern}/.test(${name})`,
     ]);
@@ -427,7 +457,7 @@ export const buildNumberMultipleOfClause: GuardClauseFactory = (
   rule,
 ) => {
   if (rule.id === 'number-multiple-of') {
-    const conditions = buildConditions(param, (name: string) => [
+    const conditions = buildConditions(param, (name) => [
       `typeof ${name} === 'number'`,
       `${name} % ${rule.value} !== 0`,
     ]);
@@ -449,7 +479,7 @@ export const buildNumberGreaterThanClause: GuardClauseFactory = (
   rule,
 ) => {
   if (rule.id === 'number-gt') {
-    const conditions = buildConditions(param, (name: string) => [
+    const conditions = buildConditions(param, (name) => [
       `typeof ${name} === 'number'`,
       `${name} <= ${rule.value}`,
     ]);
@@ -471,7 +501,7 @@ export const buildNumberGreaterOrEqualClause: GuardClauseFactory = (
   rule,
 ) => {
   if (rule.id === 'number-gte') {
-    const conditions = buildConditions(param, (name: string) => [
+    const conditions = buildConditions(param, (name) => [
       `typeof ${name} === 'number'`,
       `${name} < ${rule.value}`,
     ]);
@@ -490,7 +520,7 @@ export const buildNumberGreaterOrEqualClause: GuardClauseFactory = (
 
 export const buildNumberLessThanClause: GuardClauseFactory = (param, rule) => {
   if (rule.id === 'number-lt') {
-    const conditions = buildConditions(param, (name: string) => [
+    const conditions = buildConditions(param, (name) => [
       `typeof ${name} === 'number'`,
       `${name} >= ${rule.value}`,
     ]);
@@ -512,7 +542,7 @@ export const buildNumberLessOrEqualClause: GuardClauseFactory = (
   rule,
 ) => {
   if (rule.id === 'number-lte') {
-    const conditions = buildConditions(param, (name: string) => [
+    const conditions = buildConditions(param, (name) => [
       `typeof ${name} === 'number'`,
       `${name} > ${rule.value}`,
     ]);
@@ -532,8 +562,8 @@ export const buildNumberLessOrEqualClause: GuardClauseFactory = (
 export const buildArrayMaxItemsClause: GuardClauseFactory = (param, rule) => {
   if (rule.id === 'array-max-items') {
     const conditions = [
-      `Array.isArray(${camel(param.name)})`,
-      `${camel(param.name)}.length > ${rule.max}`,
+      `Array.isArray(params.${camel(param.name)})`,
+      `params.${camel(param.name)}.length > ${rule.max}`,
     ];
 
     return `if(${conditions.join(' && ')}) {${buildError(
@@ -548,8 +578,8 @@ export const buildArrayMaxItemsClause: GuardClauseFactory = (param, rule) => {
 export const buildArrayMinItemsClause: GuardClauseFactory = (param, rule) => {
   if (rule.id === 'array-min-items') {
     const conditions = [
-      `Array.isArray(${camel(param.name)})`,
-      `${camel(param.name)}.length < ${rule.min}`,
+      `Array.isArray(params.${camel(param.name)})`,
+      `params.${camel(param.name)}.length < ${rule.min}`,
     ];
 
     return `if(${conditions.join(' && ')}) {${buildError(
@@ -567,8 +597,8 @@ export const buildArrayUniqueItemsClause: GuardClauseFactory = (
 ) => {
   if (rule.id === 'array-unique-items') {
     const conditions = [
-      `Array.isArray(${camel(param.name)})`,
-      `${param.name}.length === new Set(${camel(param.name)}).length`,
+      `Array.isArray(params.${camel(param.name)})`,
+      `params.${param.name}.length === new Set(${camel(param.name)}).length`,
     ];
 
     return `if(${conditions.join(' && ')}) {${buildError(
