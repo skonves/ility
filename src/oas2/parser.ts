@@ -185,8 +185,8 @@ export class OAS2Parser implements Parser {
     commonParameters: (OpenAPI.Parameter | OpenAPI.Reference)[],
   ): Parameter[] {
     const allParameters = [
-      ...(operation.parameters || []),
       ...commonParameters,
+      ...(operation.parameters || []),
     ];
     if (!allParameters.length) return [];
 
