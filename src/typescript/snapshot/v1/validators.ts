@@ -614,7 +614,11 @@ export function validateExhaustiveParamsParams(
   return errors;
 }
 
-export function validateGizmo({ id, name }: types.Gizmo): ValidationError[] {
+export function validateGizmo({
+  id,
+  name,
+  size,
+}: types.Gizmo): ValidationError[] {
   const errors: ValidationError[] = [];
   if (typeof id !== 'undefined' && typeof id !== 'string') {
     errors.push({
@@ -635,6 +639,19 @@ export function validateGizmo({ id, name }: types.Gizmo): ValidationError[] {
       code: 'TYPE',
       title: '"name" must be a string if supplied',
       path: 'name',
+    });
+  }
+  if (typeof size !== 'undefined') {
+    errors.push(...validateGizmoSize(size));
+  }
+  if (
+    typeof size === 'string' &&
+    !['small', 'medium', 'large'].includes(size)
+  ) {
+    errors.push({
+      code: 'STRING_ENUM',
+      title: '"size" must be one of ["small", "medium", "large"]',
+      path: 'size',
     });
   }
   return errors;
@@ -1067,6 +1084,23 @@ export function validateExhaustiveParamsHeaderEnumArray(
     errors.push({
       code: 'STRING_ENUM',
       title: 'Value must be one of ["one", "two", "three"]',
+      path: '',
+    });
+  }
+  return [];
+}
+
+export function validateGizmoSize(
+  gizmoSize: types.GizmoSize,
+): ValidationError[] {
+  const errors: ValidationError[] = [];
+  if (
+    typeof gizmoSize === 'string' &&
+    !['small', 'medium', 'large'].includes(gizmoSize)
+  ) {
+    errors.push({
+      code: 'STRING_ENUM',
+      title: 'Value must be one of ["small", "medium", "large"]',
       path: '',
     });
   }
