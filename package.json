@@ -1,6 +1,6 @@
 {
   "name": "ility",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Multilingual code generation from OpenAPI",
   "main": "lib/index.js",
   "bin": {
