@@ -358,8 +358,13 @@
       "type": "object",
       "properties": {
         "id": { "$ref": "#/definitions/id" },
-        "name": { "type": "string" }
+        "name": { "type": "string" },
+        "size": { "$ref": "#/definitions/gizmoSize" }
       }
+    },
+    "gizmoSize": {
+      "type": "string",
+      "enum": ["small", "medium", "large"]
     },
     "widget": {
       "type": "object",

@@ -508,6 +508,10 @@ module IlityExample::V1::Validators
       )
     end
 
+    if !gizmo.size.nil?
+      errors.concat(validate_gizmo_size(T.must(gizmo.size)))
+    end
+
     errors
   end
 
@@ -902,6 +906,14 @@ module IlityExample::V1::Validators
       returns(T::Array[IlityExample::V1::ValidationError])
   end
   def validate_exhaustive_params_header_enum_array(exhaustive_params_header_enum_array)
+    []
+  end
+
+  sig do
+    params(gizmo_size: IlityExample::V1::GizmoSize).
+      returns(T::Array[IlityExample::V1::ValidationError])
+  end
+  def validate_gizmo_size(gizmo_size)
     []
   end
 end

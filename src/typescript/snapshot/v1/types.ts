@@ -130,9 +130,12 @@ export type ExhaustiveParamsHeaderEnum = 'one' | 'two' | 'three';
 
 export type ExhaustiveParamsHeaderEnumArray = 'one' | 'two' | 'three';
 
+export type GizmoSize = 'small' | 'medium' | 'large';
+
 export type Gizmo = {
   id?: string;
   name?: string;
+  size?: GizmoSize;
 };
 
 export type Widget = {

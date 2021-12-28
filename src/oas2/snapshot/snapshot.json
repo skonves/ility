@@ -611,6 +611,16 @@
           "isArray": false,
           "isLocal": false,
           "rules": []
+        },
+        {
+          "name": "size",
+          "typeName": "gizmoSize",
+          "isUnknown": false,
+          "isArray": false,
+          "isLocal": true,
+          "rules": [
+            { "id": "string-enum", "values": ["small", "medium", "large"] }
+          ]
         }
       ],
       "rules": []
@@ -835,6 +845,7 @@
     {
       "name": "exhaustiveParamsHeaderEnumArray",
       "values": ["one", "two", "three"]
-    }
+    },
+    { "name": "gizmoSize", "values": ["small", "medium", "large"] }
   ]
 }
