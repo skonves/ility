@@ -424,12 +424,10 @@ export class OAS2Parser implements Parser {
       const required = new Set<string>(def.required || []);
       const props: Property[] = [];
       for (const name in def.properties) {
-        const prop = def.properties[name];
-
-        const resolvedProp = this.resolve(prop);
+        const resolvedProp = this.resolve(def.properties[name]);
 
         const { typeName, isUnknown, isArray, isLocal } = this.parseType(
-          prop,
+          resolvedProp,
           name,
           parentName || '',
         );
