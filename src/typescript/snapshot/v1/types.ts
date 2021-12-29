@@ -9,111 +9,89 @@
 export interface GizmoService {
   /**
    * Only has a summary
-   * @param search
    */
-  getGizmos(search?: string): Promise<GizmosResponse>;
+  getGizmos(params?: { search?: string }): Promise<GizmosResponse>;
 
   /**
    * Has a summary in addition to a description
    * Has a description in addition to a summary
-   * @param size Anonymous enum
    */
-  createGizmo(size?: CreateGizmoSize): Promise<Gizmo>;
+  createGizmo(params?: {
+    /**
+     * Anonymous enum
+     */
+    size?: CreateGizmoSize;
+  }): Promise<Gizmo>;
 
-  /**
-   * @param factors array of primitive
-   */
-  updateGizmo(factors?: string[]): Promise<Gizmo>;
+  updateGizmo(params?: {
+    /**
+     * array of primitive
+     */
+    factors?: string[];
+  }): Promise<Gizmo>;
 }
 
 export interface WidgetService {
   getWidgets(): Promise<Widget>;
 
-  /**
-   * @param body The new widget
-   */
-  createWidget(body?: CreateWidgetBody): Promise<void>;
+  createWidget(params?: {
+    /**
+     * The new widget
+     */
+    body?: CreateWidgetBody;
+  }): Promise<void>;
 
   putWidget(): Promise<void>;
 
-  /**
-   * @param id The widget ID
-   */
-  getWidgetFoo(id: string): Promise<Widget>;
+  getWidgetFoo(params: {
+    /**
+     * The widget ID
+     */
+    id: string;
+  }): Promise<Widget>;
 
-  /**
-   * @param id The widget ID
-   */
-  deleteWidgetFoo(id: string): Promise<void>;
+  deleteWidgetFoo(params: {
+    /**
+     * The widget ID
+     */
+    id: string;
+  }): Promise<void>;
 }
 
 export interface ExhaustiveService {
-  /**
-   * @param pathString
-   * @param pathEnum
-   * @param pathNumber
-   * @param pathInteger
-   * @param pathBoolean
-   * @param pathStringArray
-   * @param pathEnumArray
-   * @param pathNumberArray
-   * @param pathIntegerArray
-   * @param pathBooleanArray
-   * @param queryString
-   * @param queryEnum
-   * @param queryNumber
-   * @param queryInteger
-   * @param queryBoolean
-   * @param queryStringArray
-   * @param queryEnumArray
-   * @param queryNumberArray
-   * @param queryIntegerArray
-   * @param queryBooleanArray
-   * @param headerString
-   * @param headerEnum
-   * @param headerNumber
-   * @param headerInteger
-   * @param headerBoolean
-   * @param headerStringArray
-   * @param headerEnumArray
-   * @param headerNumberArray
-   * @param headerIntegerArray
-   * @param headerBooleanArray
-   * @param body
-   */
-  exhaustiveParams(
-    pathString: string,
-    pathEnum: ExhaustiveParamsPathEnum,
-    pathNumber: number,
-    pathInteger: number,
-    pathBoolean: boolean,
-    pathStringArray: string[],
-    pathEnumArray: ExhaustiveParamsPathEnumArray[],
-    pathNumberArray: number[],
-    pathIntegerArray: number[],
-    pathBooleanArray: boolean[],
-    queryString?: string,
-    queryEnum?: ExhaustiveParamsQueryEnum,
-    queryNumber?: number,
-    queryInteger?: number,
-    queryBoolean?: boolean,
-    queryStringArray?: string[],
-    queryEnumArray?: ExhaustiveParamsQueryEnumArray[],
-    queryNumberArray?: number[],
-    queryIntegerArray?: number[],
-    queryBooleanArray?: boolean[],
-    headerString?: string,
-    headerEnum?: ExhaustiveParamsHeaderEnum,
-    headerNumber?: number,
-    headerInteger?: number,
-    headerBoolean?: boolean,
-    headerStringArray?: string[],
-    headerEnumArray?: ExhaustiveParamsHeaderEnumArray[],
-    headerNumberArray?: number[],
-    headerIntegerArray?: number[],
-    headerBooleanArray?: boolean[],
-    body?: ExhaustiveParamsBody,
-  ): Promise<void>;
+  exhaustiveParams(params: {
+    pathString: string;
+    pathEnum: ExhaustiveParamsPathEnum;
+    pathNumber: number;
+    pathInteger: number;
+    pathBoolean: boolean;
+    pathStringArray: string[];
+    pathEnumArray: ExhaustiveParamsPathEnumArray[];
+    pathNumberArray: number[];
+    pathIntegerArray: number[];
+    pathBooleanArray: boolean[];
+    queryString?: string;
+    queryEnum?: ExhaustiveParamsQueryEnum;
+    queryNumber?: number;
+    queryInteger?: number;
+    queryBoolean?: boolean;
+    queryStringArray?: string[];
+    queryEnumArray?: ExhaustiveParamsQueryEnumArray[];
+    queryNumberArray?: number[];
+    queryIntegerArray?: number[];
+    queryBooleanArray?: boolean[];
+    headerString?: string;
+    headerEnum?: ExhaustiveParamsHeaderEnum;
+    headerNumber?: number;
+    headerInteger?: number;
+    headerBoolean?: boolean;
+    headerStringArray?: string[];
+    headerEnumArray?: ExhaustiveParamsHeaderEnumArray[];
+    headerNumberArray?: number[];
+    headerIntegerArray?: number[];
+    headerBooleanArray?: boolean[];
+    body?: ExhaustiveParamsBody;
+  }): Promise<void>;
 }
 
 export type CreateGizmoSize = 'small' | 'medium' | 'big' | 'XL';
