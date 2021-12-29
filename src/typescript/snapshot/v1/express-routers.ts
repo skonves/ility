@@ -26,12 +26,12 @@ export function gizmoRoutes(service: types.GizmoService, router?: Router) {
       try {
         const search = req.query.search as string;
 
-        const errors = validators.validateGetGizmosParams(search);
+        const errors = validators.validateGetGizmosParams({ search });
         if (errors.length) return next(errors);
 
         // TODO: validate return value
         // TODO: consider response headers
-        return res.status(200).json(await service.getGizmos(search));
+        return res.status(200).json(await service.getGizmos({ search }));
       } catch (ex) {
         return next(ex);
       }
@@ -40,12 +40,12 @@ export function gizmoRoutes(service: types.GizmoService, router?: Router) {
       try {
         const size = req.query.size as types.CreateGizmoSize;
 
-        const errors = validators.validateCreateGizmoParams(size);
+        const errors = validators.validateCreateGizmoParams({ size });
         if (errors.length) return next(errors);
 
         // TODO: validate return value
         // TODO: consider response headers
-        return res.status(201).json(await service.createGizmo(size));
+        return res.status(201).json(await service.createGizmo({ size }));
       } catch (ex) {
         return next(ex);
       }
@@ -58,12 +58,12 @@ export function gizmoRoutes(service: types.GizmoService, router?: Router) {
           ? (req.query.factors.split(',') as string[])
           : (req.query.factors as never);
 
-        const errors = validators.validateUpdateGizmoParams(factors);
+        const errors = validators.validateUpdateGizmoParams({ factors });
         if (errors.length) return next(errors);
 
         // TODO: validate return value
         // TODO: consider response headers
-        return res.status(200).json(await service.updateGizmo(factors));
+        return res.status(200).json(await service.updateGizmo({ factors }));
       } catch (ex) {
         return next(ex);
       }
@@ -96,12 +96,12 @@ export function widgetRoutes(service: types.WidgetService, router?: Router) {
       try {
         const body = tryParse(req.body);
 
-        const errors = validators.validateCreateWidgetParams(body);
+        const errors = validators.validateCreateWidgetParams({ body });
         if (errors.length) return next(errors);
 
         // TODO: validate return value
         // TODO: consider response headers
-        await service.createWidget(body);
+        await service.createWidget({ body });
         return res.status(204).send();
       } catch (ex) {
         return next(ex);
@@ -131,12 +131,12 @@ export function widgetRoutes(service: types.WidgetService, router?: Router) {
       try {
         const id = req.params.id as string;
 
-        const errors = validators.validateGetWidgetFooParams(id);
+        const errors = validators.validateGetWidgetFooParams({ id });
         if (errors.length) return next(errors);
 
         // TODO: validate return value
         // TODO: consider response headers
-        return res.status(200).json(await service.getWidgetFoo(id));
+        return res.status(200).json(await service.getWidgetFoo({ id }));
       } catch (ex) {
         return next(ex);
       }
@@ -145,12 +145,12 @@ export function widgetRoutes(service: types.WidgetService, router?: Router) {
       try {
         const id = req.params.id as string;
 
-        const errors = validators.validateDeleteWidgetFooParams(id);
+        const errors = validators.validateDeleteWidgetFooParams({ id });
         if (errors.length) return next(errors);
 
         // TODO: validate return value
         // TODO: consider response headers
-        await service.deleteWidgetFoo(id);
+        await service.deleteWidgetFoo({ id });
         return res.status(204).send();
       } catch (ex) {
         return next(ex);
@@ -348,7 +348,7 @@ export function exhaustiveRoutes(
           : (req.header('header-boolean-array') as any as never);
         const body = tryParse(req.body);
 
-        const errors = validators.validateExhaustiveParamsParams(
+        const errors = validators.validateExhaustiveParamsParams({
           pathString,
           pathEnum,
           pathNumber,
@@ -380,12 +380,12 @@ export function exhaustiveRoutes(
           headerIntegerArray,
           headerBooleanArray,
           body,
-        );
+        });
         if (errors.length) return next(errors);
 
         // TODO: validate return value
         // TODO: consider response headers
-        await service.exhaustiveParams(
+        await service.exhaustiveParams({
           pathString,
           pathEnum,
           pathNumber,
@@ -417,7 +417,7 @@ export function exhaustiveRoutes(
           headerIntegerArray,
           headerBooleanArray,
           body,
-        );
+        });
         return res.status(204).send();
       } catch (ex) {
         return next(ex);
